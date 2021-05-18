@@ -8,20 +8,20 @@ class SMATest:
     """
     Class implementing vectorized backtesting of a SMA trading strategy.
     """
-    def __init__(self, symbol, SMAS, SMAL, start, end):
+    def __init__(self, symbol, smas, smal, start, end):
         """
         Initializes the SMATest object.
 
         Args:
             symbol (string): A string holding the ticker symbol of instrument to be tested
-            SMAS (int): A value for the # of days the Simple Moving Average window (Shorter) should consider
-            SMAL (int): A value for the # of days the Simple Moving Average window (Longer) should consider
+            smas (int): A value for the # of days the Simple Moving Average window (Shorter) should consider
+            smal (int): A value for the # of days the Simple Moving Average window (Longer) should consider
             start (string): The start date of the testing period.
             end (string): The end date of the testing period.
         """
         self._symbol = symbol
-        self._SMAS = SMAS
-        self._SMAL = SMAL
+        self._smas = smas
+        self._smal = smal
         self._start = start
         self._end = end
 
@@ -34,7 +34,7 @@ class SMATest:
         self._data = self.prepare_data()
 
     def __repr__(self):
-        return f"SMATest( symbol={self._symbol}, SMAS={self._SMAS}, SMAL={self._SMAL}, start={self._start}, end={self._end} )";
+        return f"SMATest( symbol={self._symbol}, smas={self._smas}, smal={self._smal}, start={self._start}, end={self._end} )";
 
     def acquire_data(self):
         """
@@ -42,7 +42,7 @@ class SMATest:
 
         Returns:
             Returns a Pandas dataframe containing downloaded info.
-            Includes: Date, Price, and Returns (on the interval [start,end])
+            Includes: Date, Price, and Returns (%) (on the interval [start,end])
         """
         # TODO: Be able to SELECT ticker from online source?
         df = pd.read_csv("forex_pairs.csv", parse_dates = ["Date"], index_col = "Date")
@@ -68,11 +68,11 @@ class SMATest:
 
         Returns:
             Returns a Pandas dataframe which is simply the original dataframe after acquiring symbol data
-            but with the SMAS & SMAL rolling window values for each dataframe entry added
+            but with the smas & smal rolling window values for each dataframe entry added
         """
         df = self._data.copy()
-        df["SMAS"] = df.price.rolling(self._SMAS).mean()
-        df["SMAL"] = df.price.rolling(self._SMAL).mean()
+        df["smas"] = df.price.rolling(self._smas).mean()
+        df["smal"] = df.price.rolling(self._smal).mean()
         return df
 
     def get_data(self):
@@ -107,15 +107,15 @@ class SMATest:
         """
         if SMAS is not None and SMAL is not None:
             if SMAS >= SMAL:
-                print("The SMAS value must be smaller than the SMAL value.")
+                print("The smas value must be smaller than the smal value.")
                 return
 
         if SMAS is not None:
-            self._SMAS = SMAS
-            self._data["SMAS"] = self._data["price"].rolling(self._SMAS).mean()
+            self._smas = SMAS
+            self._data["smas"] = self._data["price"].rolling(self._smas).mean()
         if SMAL is not None:
-            self._SMAL = SMAL
-            self._data["SMAL"] = self._data["price"].rolling(self._SMAL).mean()
+            self._smal = SMAL
+            self._data["smal"] = self._data["price"].rolling(self._smal).mean()
 
     def test_sma(self):
         """
@@ -129,7 +129,7 @@ class SMATest:
         """
         data = self._data.copy()
 
-        data["position"] = np.where(data["SMAS"] > data["SMAL"], 1, -1)
+        data["position"] = np.where(data["smas"] > data["smal"], 1, -1)
         data["strategy"] = data.position.shift(1) * data["returns"]
         data.dropna(inplace=True)
 
@@ -145,15 +145,15 @@ class SMATest:
 
     def optimize_sma(self):
         """
-        Optimizes the SMAS and SMAL on the interval [start,end] which allows for the greatest return.
-        This function attempts all combinations of: SMAS Days [10,50] & SMAL Days [100,252], so depending on the
+        Optimizes the smas and smal on the interval [start,end] which allows for the greatest return.
+        This function attempts all combinations of: smas Days [10,50] & smal Days [100,252], so depending on the
         length of the interval, it can take some time to compute.
 
         Returns:
             Returns a tuple, (float: max_return, int: GSMAS, int: GSMAL)
             -> "max_return" is the optimized (maximum) return rate of the instrument on the interval [start,end]
-            -> "GSMAS" is the optimized global SMAS value that maximizes return
-            -> "GSMAL" is the optimized global SMAL value that maximizes return
+            -> "GSMAS" is the optimized global smas value that maximizes return
+            -> "GSMAL" is the optimized global smal value that maximizes return
         """
         print("Attempting all possibilities. This will take a while.")
         max_return = float('-inf')
@@ -189,7 +189,7 @@ class SMATest:
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
-            title = f"{self._symbol} | SMAS {self._SMAS}, SMAL {self._SMAL}"
+            title = f"{self._symbol} | smas {self._smas}, smal {self._smal}"
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:
