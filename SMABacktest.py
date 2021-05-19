@@ -1,14 +1,16 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import tpqoa
+
 plt.style.use("seaborn")
 
 
-class SMATest:
+class SMABacktest:
     """
-    Class implementing vectorized backtesting of a SMA trading strategy.
+    Class implementing vectorized back-testing of a SMA trading strategy.
     """
-    def __init__(self, symbol, smas, smal, start, end):
+    def __init__(self, symbol, smas, smal, start, end, granularity="D", trading_cost=0):
         """
         Initializes the SMATest object.
 
@@ -18,14 +20,18 @@ class SMATest:
             smal (int): A value for the # of days the Simple Moving Average window (Longer) should consider
             start (string): The start date of the testing period.
             end (string): The end date of the testing period.
+            granularity (basestring) <DEFAULT = "D">: Length of each candlestick for the respective symbol.
+            trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns.
         """
         self._symbol = symbol
         self._smas = smas
         self._smal = smal
         self._start = start
         self._end = end
+        self._granularity = granularity
+        self._tc = trading_cost
 
-        # stores a Pandas dataframe holding the results of test_sma() or optimize_sma() (most recent of the two)
+        # stores a Pandas dataframe holding the results of test() or optimize() (most recent of the two)
         self._results = None
 
         # _data stores a Pandas dataframe of general values to be used by the testing strategy
@@ -34,7 +40,7 @@ class SMATest:
         self._data = self.prepare_data()
 
     def __repr__(self):
-        return f"SMATest( symbol={self._symbol}, smas={self._smas}, smal={self._smal}, start={self._start}, end={self._end} )";
+        return f"SMABacktest( symbol={self._symbol}, smas={self._smas}, smal={self._smal}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc}  )";
 
     def acquire_data(self):
         """
@@ -44,22 +50,22 @@ class SMATest:
             Returns a Pandas dataframe containing downloaded info.
             Includes: Date, Price, and Returns (%) (on the interval [start,end])
         """
-        # TODO: Be able to SELECT ticker from online source?
-        df = pd.read_csv("forex_pairs.csv", parse_dates = ["Date"], index_col = "Date")
-        if self._symbol == "AUDEUR":
-            df = df["AUDEUR=X"].to_frame().dropna()
-        elif self._symbol == "EURUSD":
-            df = df["EURUSD=X"].to_frame().dropna()
-        elif self._symbol == "USDGBP":
-            df = df["USDGBP=X"].to_frame().dropna()
-        else:
-            print("Please choose AUDEUR, EURUSD, or USDGBP")
-            return None
 
-        df = df.loc[self._start:self._end].copy()
-        df.rename(columns={f"{self._symbol}=X":"price"}, inplace=True)
+        oanda = tpqoa.tpqoa('oanda.cfg')
 
-        df["returns"] = np.log(df.price.div(df.price.shift(1)))
+        try:
+            df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
+        except:
+            raise ValueError("Please choose a supported instrument trading on OANDA, in the form XXX/YYY or XXX_YYY.")
+
+        # only care for the closing price
+        df = df.c.to_frame()
+        df.rename(columns={"c": "price"}, inplace=True)
+
+        df.dropna(inplace=True)
+
+        df["returns"] = np.log(df.div(df.shift(1)))
+
         return df
 
     def prepare_data(self):
@@ -94,7 +100,7 @@ class SMATest:
         if self._results is not None:
             return self._results
         else:
-            print("Please run .test_sma() first.")
+            print("Please run .test() first.")
 
     def set_params(self, SMAS = None, SMAL = None):
         """
@@ -117,7 +123,7 @@ class SMATest:
             self._smal = SMAL
             self._data["smal"] = self._data["price"].rolling(self._smal).mean()
 
-    def test_sma(self):
+    def test(self):
         """
         Executes the back-testing of the SMA strategy on the set instrument.
 
@@ -133,6 +139,15 @@ class SMATest:
         data["strategy"] = data.position.shift(1) * data["returns"]
         data.dropna(inplace=True)
 
+        # running total of amount of trades currently, each change of position is 2 trades, but can be improved.
+        # likely can save one trade by combining closing of position and opening of opposite position into one trade
+        # (ie current open position LONG 100 shares -> open postion SHORT (current open position shares + additional
+        # shares)
+        data["trades"] = data.position.diff().fillna(0).abs()
+
+        # correct strategy returns based on trading costs
+        data.strategy = data.strategy - data.trades * self._tc
+
         data["creturns"] = data["returns"].cumsum().apply(np.exp)
         data["cstrategy"] = data["strategy"].cumsum().apply(np.exp)
         self._results = data
@@ -143,7 +158,7 @@ class SMATest:
 
         return (performance, out_performance)
 
-    def optimize_sma(self):
+    def optimize(self):
         """
         Optimizes the smas and smal on the interval [start,end] which allows for the greatest return.
         This function attempts all combinations of: smas Days [10,50] & smal Days [100,252], so depending on the
@@ -157,7 +172,6 @@ class SMATest:
         """
         print("Attempting all possibilities. This will take a while.")
         max_return = float('-inf')
-        best_df = None
         GSMAS = -1
         GSMAL = -1
 
@@ -170,22 +184,21 @@ class SMATest:
             for SMAL in range(100,252):
 
                 self.set_params(SMAS, SMAL)
-                current_return = self.test_sma()[0]
+                current_return = self.test()[0]
 
                 if current_return > max_return:
                     max_return = current_return
-                    best_df = self._data
                     GSMAS = SMAS
                     GSMAL = SMAL
 
         self.set_params(GSMAS, GSMAL)
-        self.test_sma()
+        self.test()
 
         return (max_return, GSMAS, GSMAL)
 
     def plot_results(self):
         """
-        Plots the results of test_sma() or optimize_sma().
+        Plots the results of test() or optimize().
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
@@ -193,4 +206,4 @@ class SMATest:
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:
-            print("Please run test_sma() or optimize_sma().")
+            print("Please run test() or optimize().")
