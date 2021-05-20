@@ -3,10 +3,12 @@ import tpqoa
 import yfinance as yf
 import matplotlib.pyplot as plt
 import numpy as np
+
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
 from SMABacktest import SMABacktest
 from ContrarianBacktest import ContrarianBacktest
+from MomentumBacktest import MomentumBacktest
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -61,8 +63,11 @@ if __name__ == '__main__':
     # obj.plot_results()
 
     obj = ContrarianBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0)
-    print(obj.test())
-    obj.plot_results()
-    print(obj.get_results())
     print(obj.optimize())
     obj.plot_results()
+
+    obj = MomentumBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0.0001)
+    print(obj.optimize())
+    obj.plot_results()
+
+
