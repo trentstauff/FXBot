@@ -6,6 +6,7 @@ import numpy as np
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
 from SMABacktest import SMABacktest
+from ContrarianBacktest import ContrarianBacktest
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -29,7 +30,7 @@ def api_info():
     # print(oanda.account_id)
     print(oanda.get_instruments())
     # TODO USE THIS TO GET HISTORICAL DATA!!!!!!!!!!!!!!
-    df = oanda.get_history("EUR_USD", "2016-01-01", "2020-12-31", "D", "B")
+    df = oanda.get_history("EUR_USD", "2020-01-01", "2020-12-31", "D", "B")
     print(df)
     # print(df.info())
     # # oanda.stream_data('USD_CAD', stop=10)
@@ -46,15 +47,22 @@ if __name__ == '__main__':
 
     # api_info()
 
-    obj = SMABacktest("EUR_USD", 30, 200, "2010-01-01", "2020-06-30", "D", 0)
+    # obj = SMABacktest("EUR_USD", 30, 200, "2010-01-01", "2020-06-30", "D", 0)
+    # print(obj.test())
+    # obj.plot_results()
+    # print(obj.get_results())
+    # print(obj.optimize())
+    # obj = SMABacktest("EUR_USD", 30, 200, "2010-01-01", "2020-06-30", "D", 0.1)
+    # print(obj.test())
+    # obj.plot_results()
+    # print(obj.get_results())
+    # print(obj.optimize())
+    # obj.plot_results()
+    # obj.plot_results()
+
+    obj = ContrarianBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0)
     print(obj.test())
     obj.plot_results()
     print(obj.get_results())
     print(obj.optimize())
-    obj = SMABacktest("EUR_USD", 30, 200, "2010-01-01", "2020-06-30", "D", 0.1)
-    print(obj.test())
     obj.plot_results()
-    print(obj.get_results())
-    print(obj.optimize())
-    # obj.plot_results()
-    # obj.plot_results()

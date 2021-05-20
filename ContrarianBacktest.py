@@ -14,13 +14,13 @@ class ContrarianBacktest:
     Also note, these strategies change positions many times, which can lead to trading costs diminishing your
     profits, or magnifying your losses.
     """
-    def __init__(self, symbol, start, end, granularity="D", window=1, trading_cost=0):
+    def __init__(self, symbol, start, end, window=1, granularity="D", trading_cost=0):
 
         self._symbol = symbol
         self._start = start
         self._end = end
-        self._granularity = granularity
         self._window = window
+        self._granularity = granularity
         self._tc = trading_cost
 
         self._results = None
@@ -57,6 +57,12 @@ class ContrarianBacktest:
         return df
 
     def resample(self, granularity):
+        """
+        Resamples the symbols dataset to be in buckets of the passed granularity (IE "W", "D", "H").
+
+        Args:
+            granularity (string): The new granularity for the dataset
+        """
         self._granularity = granularity
         self._data.resample(granularity)
         return
@@ -72,7 +78,7 @@ class ContrarianBacktest:
 
     def get_results(self):
         """
-        Getter function to retrieve current symbol's dataframe after testing the strategy.
+        Getter function to retrieve current instrument's dataframe after testing the strategy.
 
         Returns:
             Returns a Pandas dataframe with results from back-testing the strategy
@@ -80,14 +86,18 @@ class ContrarianBacktest:
         if self._results is not None:
             return self._results
         else:
-            # TODO: change print
             print("Please run .test() first.")
 
     def test(self, window=1):
         """
+        Executes the back-testing of the Contrarian strategy on the set instrument.
 
+        Returns:
+            Returns a tuple, (float: performance, float: out_performance)
+            -> "performance" is the percentage of return on the interval [start, end]
+            -> "out_performance" is the performance when compared to a buy & hold on the same interval
+                IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
-
         # IE if no window parameter included and we have a stored window, use that as the window instead
         if self._window != 1 and window == 1:
             window = self._window
@@ -100,7 +110,7 @@ class ContrarianBacktest:
         data.dropna(inplace=True)
 
         # running total of amount of trades currently, each change of position is 2 trades, but can be improved.
-        # likely can save one trade by combining closing of position and opening of opposite position into one trade
+        # TODO: likely can save one trade by combining closing of position and opening of opposite position into one trade
         # (ie current open position LONG 100 shares -> open postion SHORT (current open position shares + additional
         # shares)
         data["trades"] = data.position.diff().fillna(0).abs()
@@ -117,12 +127,25 @@ class ContrarianBacktest:
         # out_performance is our strats performance vs a buy and hold on the interval
         out_performance = performance - data["creturns"].iloc[-1]
 
-        return (performance, out_performance)
+        return performance, out_performance
 
     def optimize(self, window_range=(1,252)):
         """
+        Optimizes the window on the interval [start,end] which allows for the greatest return.
 
+        Args:
+            window_range (tuple(int, int)) <DEFAULT>=(1,252): Range of values for optimization of sliding window
+
+        Returns:
+            Returns a tuple, (float: max_return, int: best_window)
+            -> "max_return" is the optimized (maximum) return rate of the instrument on the interval [start,end]
+            -> "best_window" is the optimized window that enables a maximum return
         """
+
+        if window_range[0] >= window_range[1]:
+            print("The range must satisfy: (X,Y) -> X < Y")
+            return
+
         max_return = float('-inf')
         best_window = 1
 
@@ -130,9 +153,9 @@ class ContrarianBacktest:
 
             if window == (window_range[1]/4): print("25%...")
             if window == (window_range[1]/2): print("50%...")
-            if window == (window_range[1]/3): print("75%...")
+            if window == (window_range[1]/1.5): print("75%...")
 
-            current_return = self.test()[0]
+            current_return = self.test(window)[0]
 
             if current_return > max_return:
                 max_return = current_return
@@ -144,7 +167,7 @@ class ContrarianBacktest:
         # run the final test to store results
         self.test()
 
-        return max_return, window
+        return max_return, best_window
 
     def plot_results(self):
         """

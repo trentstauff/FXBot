@@ -10,7 +10,7 @@ class SMABacktest:
     """
     Class implementing vectorized back-testing of a SMA trading strategy.
     """
-    def __init__(self, symbol, smas, smal, start, end, granularity="D", trading_cost=0):
+    def __init__(self, symbol, start, end, smas, smal, granularity="D", trading_cost=0):
         """
         Initializes the SMATest object.
 
@@ -50,7 +50,6 @@ class SMABacktest:
             Returns a Pandas dataframe containing downloaded info.
             Includes: Date, Price, and Returns (%) (on the interval [start,end])
         """
-
         oanda = tpqoa.tpqoa('oanda.cfg')
 
         try:
@@ -156,7 +155,7 @@ class SMABacktest:
         # out_performance is our strats performance vs a buy and hold on the interval
         out_performance = performance - data["creturns"].iloc[-1]
 
-        return (performance, out_performance)
+        return performance, out_performance
 
     def optimize(self):
         """
@@ -194,7 +193,7 @@ class SMABacktest:
         self.set_params(GSMAS, GSMAL)
         self.test()
 
-        return (max_return, GSMAS, GSMAL)
+        return max_return, GSMAS, GSMAL
 
     def plot_results(self):
         """
