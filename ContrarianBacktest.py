@@ -109,10 +109,7 @@ class ContrarianBacktest:
 
         data.dropna(inplace=True)
 
-        # running total of amount of trades currently, each change of position is 2 trades, but can be improved.
-        # TODO: likely can save one trade by combining closing of position and opening of opposite position into one trade
-        # (ie current open position LONG 100 shares -> open postion SHORT (current open position shares + additional
-        # shares)
+        # running total of amount of trades, each change of position is 2 trades
         data["trades"] = data.position.diff().fillna(0).abs()
 
         # correct strategy returns based on trading costs

@@ -4,6 +4,8 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import numpy as np
 
+from BollingerBandsBacktest import BollingerBandsBacktest
+
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
 from SMABacktest import SMABacktest
@@ -62,12 +64,16 @@ if __name__ == '__main__':
     # obj.plot_results()
     # obj.plot_results()
 
-    obj = ContrarianBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0)
-    print(obj.optimize())
+    obj = BollingerBandsBacktest("EUR_USD", "2010-01-01", "2020-06-30")
+    print(obj.optimize(sma_range=(20,21)))
     obj.plot_results()
 
-    obj = MomentumBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0.0001)
-    print(obj.optimize())
+    obj = BollingerBandsBacktest("EUR_USD", "2010-01-01", "2020-06-30", trading_cost=0.0001)
+    print(obj.optimize(sma_range=(20,21)))
+    obj.plot_results()
+
+    obj = MomentumBacktest("EUR_USD", "2010-01-01", "2020-06-30", trading_cost=0.0001)
+    print(obj.optimize(window_range=(20,21)))
     obj.plot_results()
 
 

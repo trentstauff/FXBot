@@ -6,28 +6,28 @@ import tpqoa
 plt.style.use("seaborn")
 
 
-class SMABacktest:
+class BollingerBandsBacktest:
     """
-    Class implementing vectorized back-testing of a SMA trading strategy.
+    Class implementing vectorized back-testing of a Bollinger Bands trading strategy.
     """
-    def __init__(self, symbol, start, end, smas, smal, granularity="D", trading_cost=0):
+    def __init__(self, symbol, start, end, sma=20, deviation=2, granularity="D", trading_cost=0):
         """
-        Initializes the SMABacktest object.
+        Initializes the BollingerBandsBacktest object.
 
         Args:
             symbol (string): A string holding the ticker symbol of instrument to be tested
             start (string): The start date of the testing period
             end (string): The end date of the testing period
-            smas (int): A value for the # of days the Simple Moving Average window (Shorter) should consider
-            smal (int): A value for the # of days the Simple Moving Average window (Longer) should consider
+            sma (int) <DEFAULT = 20>: Length of sliding average window
+            deviation (int) <DEFAULT = 2>: Standard deviation multiplier for upper and lower bands
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
         self._symbol = symbol
         self._start = start
         self._end = end
-        self._smas = smas
-        self._smal = smal
+        self._sma = sma
+        self._deviation = deviation
         self._granularity = granularity
         self._tc = trading_cost
 
@@ -40,7 +40,7 @@ class SMABacktest:
         self._data = self.prepare_data()
 
     def __repr__(self):
-        return f"SMABacktest( symbol={self._symbol}, start={self._start}, end={self._end}, smas={self._smas}, smal={self._smal}, granularity={self._granularity}, trading_cost={self._tc}  )";
+        return f"BollingerBandsBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, sma={self._sma}, deviation={self._deviation}, granularity={self._granularity}, trading_cost={self._tc}  )";
 
     def acquire_data(self):
         """
@@ -64,7 +64,6 @@ class SMABacktest:
         df.dropna(inplace=True)
 
         df["returns"] = np.log(df.div(df.shift(1)))
-
         return df
 
     def prepare_data(self):
@@ -72,12 +71,14 @@ class SMABacktest:
         Prepares data for strategy-specific information.
 
         Returns:
-            Returns a Pandas dataframe which is simply the original dataframe after acquiring symbol data
-            but with the smas & smal rolling window values for each dataframe entry added
+            Returns a Pandas dataframe
         """
         df = self._data.copy()
-        df["smas"] = df.price.rolling(self._smas).mean()
-        df["smal"] = df.price.rolling(self._smal).mean()
+        df["sma"] = df.price.rolling(self._sma).mean()
+
+        df["lower"] = df["sma"] - (df.price.rolling(self._sma).std() * self._deviation)
+        df["upper"] = df["sma"] + (df.price.rolling(self._sma).std() * self._deviation)
+
         return df
 
     def get_data(self):
@@ -101,30 +102,33 @@ class SMABacktest:
         else:
             print("Please run .test() first.")
 
-    def set_params(self, SMAS = None, SMAL = None):
+    def set_params(self, sma=None, deviation=None):
         """
-        Allows the caller to reset/override the current SMA (Short and Long) values individually or together,
-        which also updates the prepared dataset (rolling SMA values) associated with the symbol.
+        Allows the caller to reset/override the current sma value and the deviation value,
+        which also updates the prepared dataset associated with the symbol.
 
         Args:
-            SMAS (int): The new shorter SMA
-            SMAL (int): The new longer SMA
+            sma (int): The new sma
+            deviation (int): The new deviation
         """
-        if SMAS is not None and SMAL is not None:
-            if SMAS >= SMAL:
-                print("The smas value must be smaller than the smal value.")
-                return
 
-        if SMAS is not None:
-            self._smas = SMAS
-            self._data["smas"] = self._data["price"].rolling(self._smas).mean()
-        if SMAL is not None:
-            self._smal = SMAL
-            self._data["smal"] = self._data["price"].rolling(self._smal).mean()
+        if sma is not None:
+            self._sma = sma
+            self._data["sma"] = self._data.price.rolling(self._sma).mean()
+
+            # error with python... https://github.com/pandas-dev/pandas/issues/21786 .std() doesnt work
+            self._data["lower"] = self._data["sma"] - self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * self._deviation
+            self._data["upper"] = self._data["sma"] + self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * self._deviation
+
+        if deviation is not None:
+            self._deviation = deviation
+            self._data["lower"] = self._data["sma"] - (self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * deviation)
+            self._data["upper"] = self._data["sma"] + (self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * deviation)
+
 
     def test(self):
         """
-        Executes the back-testing of the SMA strategy on the set instrument.
+        Executes the back-testing of the Bollinger Bands strategy on the set instrument.
 
         Returns:
             Returns a tuple, (float: performance, float: out_performance)
@@ -132,19 +136,29 @@ class SMABacktest:
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
-        data = self._data.copy()
+        data = self._data.copy().dropna()
 
-        data["position"] = np.where(data["smas"] > data["smal"], 1, -1)
+        data["distance"] = data["price"] - data["sma"]
+
+        # if price is lower than lower band, indicates oversold, and to go long
+        data["position"] = np.where(data["price"] < data["lower"], 1, np.nan)
+
+        # if price is higher than upper band, indicates overbought, and to go short
+        data["position"] = np.where(data["price"] > data["upper"], -1, data["position"])
+
+        # if we have crossed the sma line, we want to close our current position (be neutral, position=0)
+        data["position"] = np.where(data["distance"] * data["distance"].shift(1) < 0, 0, data["position"])
+
+        # clean up any NAN values/holiday vacancies
+        data["position"] = data.position.ffill().fillna(0)
+
         data["strategy"] = data.position.shift(1) * data["returns"]
+
         data.dropna(inplace=True)
 
-        # running total of amount of trades currently, each change of position is 2 trades, but can be improved.
-        # likely can save one trade by combining closing of position and opening of opposite position into one trade
-        # (ie current open position LONG 100 shares -> open postion SHORT (current open position shares + additional
-        # shares)
         data["trades"] = data.position.diff().fillna(0).abs()
 
-        # correct strategy returns based on trading costs
+        # correct strategy returns based on trading costs (only applicable if self._tc > 0)
         data.strategy = data.strategy - data.trades * self._tc
 
         data["creturns"] = data["returns"].cumsum().apply(np.exp)
@@ -157,43 +171,43 @@ class SMABacktest:
 
         return performance, out_performance
 
-    def optimize(self):
+    def optimize(self, sma_range=(1,252), dev_range=(1,3)):
         """
-        Optimizes the smas and smal on the interval [start,end] which allows for the greatest return.
-        This function attempts all combinations of: smas Days [10,50] & smal Days [100,252], so depending on the
-        length of the interval, it can take some time to compute.
+        Optimizes the sma and deviation on the interval [start,end] which allows for the greatest return.
 
         Returns:
-            Returns a tuple, (float: max_return, int: GSMAS, int: GSMAL)
+            Returns a tuple, (float: max_return, int: best_sma, int: best_dev)
             -> "max_return" is the optimized (maximum) return rate of the instrument on the interval [start,end]
-            -> "GSMAS" is the optimized global smas value that maximizes return
-            -> "GSMAL" is the optimized global smal value that maximizes return
+            -> "best_sma" is the optimized global best_sma value that maximizes return
+            -> "best_dev" is the optimized global best_dev value that maximizes return
         """
-        print("Attempting all possibilities. This will take a while.")
+
+        if sma_range[0] >= sma_range[1] or dev_range[0] >= dev_range[1]:
+            print("The ranges must satisfy: (X,Y) -> X < Y")
+            return
+
         max_return = float('-inf')
-        GSMAS = -1
-        GSMAL = -1
+        best_sma = -1
+        best_dev = -1
+        for sma in range(sma_range[0],sma_range[1]):
 
-        for SMAS in range(10,50):
+            if sma == sma_range[1]/4: print("25%...")
+            if sma == sma_range[1]/2: print("50%...")
+            if sma == sma_range[1]/1.5: print("75%...")
 
-            if SMAS == 13: print("25%...")
-            if SMAS == 25: print("50%...")
-            if SMAS == 38: print("75%...")
-
-            for SMAL in range(100,252):
-
-                self.set_params(SMAS, SMAL)
+            for dev in range(dev_range[0],dev_range[1]):
+                self.set_params(sma, dev)
                 current_return = self.test()[0]
 
                 if current_return > max_return:
                     max_return = current_return
-                    GSMAS = SMAS
-                    GSMAL = SMAL
+                    best_sma = sma
+                    best_dev = dev
 
-        self.set_params(GSMAS, GSMAL)
+        self.set_params(best_sma, best_dev)
         self.test()
 
-        return max_return, GSMAS, GSMAL
+        return max_return, best_sma, best_dev
 
     def plot_results(self):
         """
@@ -201,7 +215,7 @@ class SMABacktest:
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
-            title = f"{self._symbol} | smas {self._smas}, smal {self._smal}"
+            title = f"Bollinger Bands: {self._symbol} | sma {self._sma}, deviation {self._deviation}"
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:
