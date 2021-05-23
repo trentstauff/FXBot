@@ -4,6 +4,7 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import numpy as np
 
+from MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
 from BollingerBandsBacktest import BollingerBandsBacktest
 
 plt.style.use("seaborn")
@@ -64,16 +65,19 @@ if __name__ == '__main__':
     # obj.plot_results()
     # obj.plot_results()
 
-    obj = BollingerBandsBacktest("EUR_USD", "2010-01-01", "2020-06-30")
-    print(obj.optimize(sma_range=(20,21)))
-    obj.plot_results()
+    # obj = ContrarianBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0)
+    # print(obj.optimize())
+    # obj.plot_results()
+    #
+    # obj = MomentumBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0.0001)
+    # print(obj.optimize())
+    # obj.plot_results()
 
-    obj = BollingerBandsBacktest("EUR_USD", "2010-01-01", "2020-06-30", trading_cost=0.0001)
-    print(obj.optimize(sma_range=(20,21)))
-    obj.plot_results()
+    obj = MultipleRegressionModelPredictor("EUR_USD", ("2019-01-01", "2019-12-30"), ("2020-01-01", "2020-08-30"), 5, granularity="M5", trading_cost=0)
+    print(obj.get_data())
+    obj.test()
 
-    obj = MomentumBacktest("EUR_USD", "2010-01-01", "2020-06-30", trading_cost=0.0001)
-    print(obj.optimize(window_range=(20,21)))
     obj.plot_results()
+    print(obj.get_hitratio())
 
 
