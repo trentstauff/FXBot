@@ -6,6 +6,7 @@ import numpy as np
 
 from MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
 from BollingerBandsBacktest import BollingerBandsBacktest
+from MLClassificationBacktest import MLClassificationBacktest
 
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
@@ -35,7 +36,7 @@ def api_info():
     # print(oanda.account_id)
     print(oanda.get_instruments())
     # TODO USE THIS TO GET HISTORICAL DATA!!!!!!!!!!!!!!
-    df = oanda.get_history("EUR_USD", "2020-01-01", "2020-12-31", "D", "B")
+    df = oanda.get_history("EUR_USD", "2020-01-01", "2020-12-31", "M30", "B")
     print(df)
     # print(df.info())
     # # oanda.stream_data('USD_CAD', stop=10)
@@ -73,7 +74,14 @@ if __name__ == '__main__':
     # print(obj.optimize())
     # obj.plot_results()
 
-    obj = MultipleRegressionModelPredictor("EUR_USD", ("2019-01-01", "2019-12-30"), ("2020-01-01", "2020-08-30"), 5, granularity="M5", trading_cost=0)
+    # obj = MultipleRegressionModelPredictor("EUR_USD", ("2019-01-01", "2019-12-30"), ("2020-01-01", "2020-08-30"), 5, granularity="M30", trading_cost=0.000015)
+    # print(obj.get_data())
+    # obj.test()
+    #
+    # obj.plot_results()
+    # print(obj.get_hitratio())
+
+    obj = MLClassificationBacktest("EUR_USD", "2019-01-01", "2020-08-30", granularity="M5", trading_cost=0)
     print(obj.get_data())
     obj.test()
 

@@ -14,7 +14,7 @@ class MultipleRegressionModelPredictor:
     """
     def __init__(self, symbol, backtest_range, forwardtest_range, lags=3, granularity="D", trading_cost=0):
         """
-            Initializes the ContrarianBacktest object.
+            Initializes the MultipleRegressionModelPredictor object.
 
             Args:
                 symbol (string): A string holding the ticker symbol of instrument to be tested
@@ -49,6 +49,7 @@ class MultipleRegressionModelPredictor:
         """
         oanda = tpqoa.tpqoa('oanda.cfg')
 
+        # get data of both periods
         backtestdf = oanda.get_history(self._symbol, self._startb, self._endb, self._granularity, "B")
         forwardtestdf = oanda.get_history(self._symbol, self._startf, self._endf, self._granularity, "B")
 
@@ -76,12 +77,11 @@ class MultipleRegressionModelPredictor:
     def prepare_data(self):
         """
         Prepares data for strategy-specific information.
-
         """
         backtestdf = self._backtest_df.copy()
         forwardtestdf = self._forwardtest_df.copy()
 
-        # now we have multiple lagging columns (depending on lags length > 1)
+        # we have multiple lagging columns (depending on lags length > 1)
         columns = []
         for lag in range(1, self._lags + 1):
             column = f"lag{lag}"
@@ -119,11 +119,23 @@ class MultipleRegressionModelPredictor:
         return self._forwardtest_df
 
     def get_hitratio(self):
+        """
+        Getter function to retrieve the forward test's hit ratio.
+
+        Returns:
+            Returns the hit ratio
+        """
         return self._hitratio
 
     def test(self):
         """
+        Computes the strategies returns over the forwardtest interval.
 
+        Returns:
+            Returns a tuple, (float: performance, float: out_performance)
+            -> "performance" is the percentage of return on the interval [start, end]
+            -> "out_performance" is the performance when compared to a buy & hold on the same interval
+                IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
         data = self._forwardtest_df.copy()
 
@@ -147,7 +159,7 @@ class MultipleRegressionModelPredictor:
 
     def plot_results(self):
         """
-        Plots the results of test() or optimize().
+        Plots the results of test().
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
@@ -155,4 +167,4 @@ class MultipleRegressionModelPredictor:
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:
-            print("Please run test() or optimize().")
+            print("Please run test().")

@@ -38,7 +38,7 @@ class MomentumBacktest:
         self._data = self.acquire_data()
 
     def __repr__(self):
-        return f"MomentumBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, lags={self._window}, trading_cost={self._tc} )";
+        return f"MomentumBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )";
 
     def acquire_data(self):
         """
