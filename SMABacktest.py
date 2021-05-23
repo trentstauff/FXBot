@@ -18,8 +18,8 @@ class SMABacktest:
             symbol (string): A string holding the ticker symbol of instrument to be tested
             start (string): The start date of the testing period
             end (string): The end date of the testing period
-            smas (int): A value for the # of days the Simple Moving Average window (Shorter) should consider
-            smal (int): A value for the # of days the Simple Moving Average window (Longer) should consider
+            smas (int): A value for the # of days the Simple Moving Average lags (Shorter) should consider
+            smal (int): A value for the # of days the Simple Moving Average lags (Longer) should consider
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
@@ -70,7 +70,7 @@ class SMABacktest:
 
         Returns:
             Returns a Pandas dataframe which is simply the original dataframe after acquiring symbol data
-            but with the smas & smal rolling window values for each dataframe entry added
+            but with the smas & smal rolling lags values for each dataframe entry added
         """
         df = self._data.copy()
         df["smas"] = df.price.rolling(self._smas).mean()

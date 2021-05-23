@@ -18,7 +18,7 @@ class BollingerBandsBacktest:
             symbol (string): A string holding the ticker symbol of instrument to be tested
             start (string): The start date of the testing period
             end (string): The end date of the testing period
-            sma (int) <DEFAULT = 20>: Length of sliding average window
+            sma (int) <DEFAULT = 20>: Length of sliding average lags
             deviation (int) <DEFAULT = 2>: Standard deviation multiplier for upper and lower bands
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns

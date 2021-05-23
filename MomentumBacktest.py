@@ -10,12 +10,22 @@ class MomentumBacktest:
     """
     Class implementing vectorized back-testing of a Momentum Strategy.
     This strategy should only be used alongside other strategies, on it's own it is very sensitive
-    to the value of the moving window set for the strategy.
+    to the value of the moving lags set for the strategy.
     Also note, these strategies change positions many times, which can lead to trading costs diminishing your
     profits, or magnifying your losses.
     """
     def __init__(self, symbol, start, end, window=1, granularity="D", trading_cost=0):
+        """
+        Initializes the ContrarianBacktest object.
 
+        Args:
+            symbol (string): A string holding the ticker symbol of instrument to be tested
+            start (string): The start date of the testing period
+            end (string): The end date of the testing period
+            window (int): Length of lags that drives the position.
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
+        """
         self._symbol = symbol
         self._start = start
         self._end = end
@@ -28,7 +38,7 @@ class MomentumBacktest:
         self._data = self.acquire_data()
 
     def __repr__(self):
-        return f"MomentumBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, window={self._window}, trading_cost={self._tc} )";
+        return f"MomentumBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, lags={self._window}, trading_cost={self._tc} )";
 
     def acquire_data(self):
         """
@@ -37,7 +47,6 @@ class MomentumBacktest:
         Returns:
             Returns a Pandas dataframe containing downloaded info.
         """
-
         oanda = tpqoa.tpqoa('oanda.cfg')
 
         df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
@@ -94,7 +103,7 @@ class MomentumBacktest:
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
-        # IE if no window parameter included and we have a stored window, use that as the window instead
+        # IE if no lags parameter included and we have a stored lags, use that as the lags instead
         if self._window != 1 and window == 1:
             window = self._window
 
@@ -123,17 +132,16 @@ class MomentumBacktest:
 
     def optimize(self, window_range=(1,252)):
         """
-        Optimizes the window on the interval [start,end] which allows for the greatest return.
+        Optimizes the lags on the interval [start,end] which allows for the greatest return.
 
         Args:
-            window_range (tuple(int, int)) <DEFAULT>=(1,252): Range of values for optimization of sliding window
+            window_range (tuple(int, int)) <DEFAULT>=(1,252): Range of values for optimization of sliding lags
 
         Returns:
             Returns a tuple, (float: max_return, int: best_window)
             -> "max_return" is the optimized (maximum) return rate of the instrument on the interval [start,end]
-            -> "best_window" is the optimized window that enables a maximum return
+            -> "best_window" is the optimized lags that enables a maximum return
         """
-
         if window_range[0] >= window_range[1]:
             print("The range must satisfy: (X,Y) -> X < Y")
             return
@@ -153,7 +161,7 @@ class MomentumBacktest:
                 max_return = current_return
                 best_window = window
 
-        # save the optimized window
+        # save the optimized lags
         self._window = best_window
 
         # run the final test to store results
@@ -167,7 +175,7 @@ class MomentumBacktest:
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
-            title = f"{self._symbol} | window {self._window}"
+            title = f"{self._symbol} | lags {self._window}"
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:

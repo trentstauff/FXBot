@@ -9,21 +9,31 @@ plt.style.use("seaborn")
 
 class MultipleRegressionModelPredictor:
     """
-    Attempts to predict the direction of returns.
+    Predicts the direction of returns for each granularity time stamp, by fitting to a known time range
+    and then predicting a future time range.
     """
-    def __init__(self, symbol, backtest_range, forwardtest_range, window=3, granularity="D", trading_cost=0):
+    def __init__(self, symbol, backtest_range, forwardtest_range, lags=3, granularity="D", trading_cost=0):
+        """
+            Initializes the ContrarianBacktest object.
+
+            Args:
+                symbol (string): A string holding the ticker symbol of instrument to be tested
+                backtest_range (tuple: str): The date range of the backtesting testing period
+                forwardtest_range (tuple: str): The date range of period to predict
+                lags (int): Number of lags to consider when fitting
+                granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+                trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
 
-        """
-
-        # TODO: Ensure backtest range is before forward test range (or at least warn)
+        if backtest_range[0] > backtest_range[1] or forwardtest_range[0] > forwardtest_range[1] or backtest_range[1] > forwardtest_range[0]:
+            raise ValueError("Please ensure that the start date for each date range is earlier than the end date, and also ensure the backtest range is completely before the forwardtest range.")
 
         self._symbol = symbol
         self._startb = backtest_range[0]
         self._endb = backtest_range[1]
         self._startf = forwardtest_range[0]
         self._endf = forwardtest_range[1]
-        self._window = window
+        self._lags = lags
         self._granularity = granularity
         self._tc = trading_cost
 
@@ -38,8 +48,6 @@ class MultipleRegressionModelPredictor:
         A general function to acquire data of symbol from a source.
         """
         oanda = tpqoa.tpqoa('oanda.cfg')
-
-
 
         backtestdf = oanda.get_history(self._symbol, self._startb, self._endb, self._granularity, "B")
         forwardtestdf = oanda.get_history(self._symbol, self._startf, self._endf, self._granularity, "B")
@@ -73,9 +81,9 @@ class MultipleRegressionModelPredictor:
         backtestdf = self._backtest_df.copy()
         forwardtestdf = self._forwardtest_df.copy()
 
-        # now we have multiple lagging columns (depending on window length > 1)
+        # now we have multiple lagging columns (depending on lags length > 1)
         columns = []
-        for lag in range(1, self._window+1):
+        for lag in range(1, self._lags + 1):
             column = f"lag{lag}"
             backtestdf[column] = backtestdf.returns.shift(lag)
             forwardtestdf[column] = forwardtestdf.returns.shift(lag)
@@ -143,7 +151,7 @@ class MultipleRegressionModelPredictor:
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
-            title = f"{self._symbol} | Multiple Regression of {self._window}, Granularity of {self._granularity}, Trading Cost of {self._tc}"
+            title = f"{self._symbol} | Multiple Regression of {self._lags}, Granularity of {self._granularity}, Trading Cost of {self._tc}"
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:
