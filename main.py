@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
+from BollingerBandsBacktest import BollingerBandsBacktest
 
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
@@ -75,6 +76,7 @@ if __name__ == '__main__':
     obj = MultipleRegressionModelPredictor("EUR_USD", ("2019-01-01", "2019-12-30"), ("2020-01-01", "2020-08-30"), 5, granularity="M5", trading_cost=0)
     print(obj.get_data())
     obj.test()
+
     obj.plot_results()
     print(obj.get_hitratio())
 

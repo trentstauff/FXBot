@@ -12,22 +12,22 @@ class SMABacktest:
     """
     def __init__(self, symbol, start, end, smas, smal, granularity="D", trading_cost=0):
         """
-        Initializes the SMATest object.
+        Initializes the SMABacktest object.
 
         Args:
             symbol (string): A string holding the ticker symbol of instrument to be tested
+            start (string): The start date of the testing period
+            end (string): The end date of the testing period
             smas (int): A value for the # of days the Simple Moving Average window (Shorter) should consider
             smal (int): A value for the # of days the Simple Moving Average window (Longer) should consider
-            start (string): The start date of the testing period.
-            end (string): The end date of the testing period.
-            granularity (basestring) <DEFAULT = "D">: Length of each candlestick for the respective symbol.
-            trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns.
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
         self._symbol = symbol
-        self._smas = smas
-        self._smal = smal
         self._start = start
         self._end = end
+        self._smas = smas
+        self._smal = smal
         self._granularity = granularity
         self._tc = trading_cost
 
@@ -40,7 +40,7 @@ class SMABacktest:
         self._data = self.prepare_data()
 
     def __repr__(self):
-        return f"SMABacktest( symbol={self._symbol}, smas={self._smas}, smal={self._smal}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc}  )";
+        return f"SMABacktest( symbol={self._symbol}, start={self._start}, end={self._end}, smas={self._smas}, smal={self._smal}, granularity={self._granularity}, trading_cost={self._tc}  )";
 
     def acquire_data(self):
         """
