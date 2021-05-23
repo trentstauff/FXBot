@@ -52,10 +52,7 @@ class SMABacktest:
         """
         oanda = tpqoa.tpqoa('oanda.cfg')
 
-        try:
-            df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
-        except:
-            raise ValueError("Please choose a supported instrument trading on OANDA, in the form XXX/YYY or XXX_YYY.")
+        df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
 
         # only care for the closing price
         df = df.c.to_frame()
