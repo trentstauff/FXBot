@@ -7,6 +7,7 @@ import numpy as np
 from MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
 from BollingerBandsBacktest import BollingerBandsBacktest
 from MLClassificationBacktest import MLClassificationBacktest
+from IterativeBase import IterativeBase
 
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
@@ -81,11 +82,15 @@ if __name__ == '__main__':
     # obj.plot_results()
     # print(obj.get_hitratio())
 
-    obj = MLClassificationBacktest("EUR_USD", "2019-01-01", "2020-08-30", granularity="M5", trading_cost=0)
-    print(obj.get_data())
-    obj.test()
+    # obj = MLClassificationBacktest("EUR_USD", "2019-01-01", "2020-08-30", granularity="M5", trading_cost=0)
+    # print(obj.get_data())
+    # obj.test()
+    #
+    # obj.plot_results()
+    # print(obj.get_hitratio())
 
-    obj.plot_results()
-    print(obj.get_hitratio())
+    obj = IterativeBase("EUR_USD", "2007-04-22", "2020-06-30", 100, granularity="D")
+    obj.plot_data("spread")
+    print(obj.bar_info(100))
 
 
