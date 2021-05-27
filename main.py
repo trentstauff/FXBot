@@ -89,8 +89,17 @@ if __name__ == '__main__':
     # obj.plot_results()
     # print(obj.get_hitratio())
 
-    obj = IterativeBase("EUR_USD", "2007-04-22", "2020-06-30", 100, granularity="D")
-    obj.plot_data("spread")
-    print(obj.bar_info(100))
+    obj = IterativeBase("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D")
+    obj.buy(0, requested_price = 100000)
+    obj.print_current_balance(0)
+    obj.print_current_position_value(0)
+    obj.print_current_balance(-1)
+    obj.print_current_position_value(-1)
+    obj.print_current_nav(-1)
+    obj.close_position(-1)
+    print(obj._data)
+    print(obj._data.bid_price[-1]/obj._data.bid_price[0] - 1)
+    # obj.plot_data("spread")
+    # print(obj.bar_info(100))
 
 
