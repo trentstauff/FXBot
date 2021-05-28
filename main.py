@@ -92,6 +92,8 @@ if __name__ == '__main__':
 
     obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
     obj.test_sma(50,200)
+    # obj.test_contrarian(window=3)
+    # obj.test_bollinger_bands(50)
     # obj.print_current_balance(0)
     # obj.print_current_position_value(0)
     # obj.print_current_balance(-1)

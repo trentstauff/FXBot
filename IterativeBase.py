@@ -87,7 +87,7 @@ class IterativeBase:
         self._current_balance -= units * price
         self._units += units
         self._trades += 1
-        print(f"{date} | Bought {units} units of {self._symbol} @ ${price}/unit, total=${units*price}")
+        print(f"{date} | Bought {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}")
 
     def sell(self, bar, units=None, amount=None):
         date, price, spread = self.bar_info(bar)
@@ -100,7 +100,7 @@ class IterativeBase:
         self._current_balance += units * price
         self._units -= units
         self._trades += 1
-        print(f"{date} | Sold {units} units of {self._symbol} @ ${price}/unit, total=${units*price}")
+        print(f"{date} | Sold {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}")
 
     def close_position(self, bar):
         date, price, spread = self.bar_info(bar)
@@ -111,8 +111,8 @@ class IterativeBase:
             # closing long position by selling (bid price)
             self._current_balance += self._units * price
         else:
-            # closing short position by buying (ask price)
-            self._current_balance += abs(self._units * (price + spread))
+            # closing short position by buying (ask price = bid_price + spread)
+            self._current_balance -= abs(self._units * (price + spread))
 
 
         print(f"{date} | closed position of {self._units} units @ {price}")
