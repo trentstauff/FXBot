@@ -9,6 +9,7 @@ from BollingerBandsBacktest import BollingerBandsBacktest
 from MLClassificationBacktest import MLClassificationBacktest
 from IterativeBase import IterativeBase
 from IterativeBacktest import IterativeBacktest
+from GetTickData import GetTickData
 
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
@@ -90,8 +91,11 @@ if __name__ == '__main__':
     # obj.plot_results()
     # print(obj.get_hitratio())
 
-    obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
-    obj.test_sma(50,200)
+    # obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
+    # obj.test_sma(50,200)
+
+    td = GetTickData("oanda.cfg")
+    td.stream_data("EUR_USD", stop = 10)
     # obj.test_contrarian(window=3)
     # obj.test_bollinger_bands(50)
     # obj.print_current_balance(0)
