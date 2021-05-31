@@ -1,3 +1,3 @@
 # FXBot
 
-Forex Trading Bot
+Forex Trading Bot.
