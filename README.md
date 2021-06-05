@@ -1,5 +1,5 @@
 # FXBot
 
-Forex Trading Bot 
+Forex Trading Bot, currently in development
 
 
