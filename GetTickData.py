@@ -30,7 +30,7 @@ class GetTickData(tpqoa.tpqoa):
             # append the most recent resampled ticks to self._data
             self._data = self._data.append(self._tick_data.resample(self._bar_length, label="right").last().ffill().iloc[:-1])
 
-            # only keep the last tick bar (pandas DataFrame)
+            # only keep the last tick bar (which is a pandas DataFrame)
             self._tick_data = self._tick_data.iloc[-1:]
             self._last_tick = self._data.index[-1]
 
