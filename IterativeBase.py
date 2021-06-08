@@ -39,6 +39,7 @@ class IterativeBase:
        df = bid_price
        df.rename(columns={"c": "bid_price"}, inplace=True)
        df["ask_price"] = ask_price
+       df["mid_price"] = ask_price - spread
        df["spread"] = spread
 
        df.dropna(inplace=True)
