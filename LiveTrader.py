@@ -1,10 +1,11 @@
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta, time
 import time
 import tpqoa
 
 
-class GetTickData(tpqoa.tpqoa):
+class LiveTrader(tpqoa.tpqoa):
 
     def __init__(self, cfg, instrument, bar_length):
         # passes the config file to tpqoa
@@ -12,6 +13,7 @@ class GetTickData(tpqoa.tpqoa):
         self._instrument = instrument
         self._bar_length = pd.to_timedelta(bar_length)
         self._tick_data = pd.DataFrame()
+        self._raw_data = None
         self._data = None
         self._last_tick = None
 
@@ -19,6 +21,7 @@ class GetTickData(tpqoa.tpqoa):
     def setup_history(self, days=7):
         # while loop to combat missing bar on boundary of historical and streamed data
         while True:
+
             time.sleep(2)
             now = datetime.utcnow()
             now = now.replace(microsecond=0)
@@ -39,8 +42,8 @@ class GetTickData(tpqoa.tpqoa):
 
             df = df.resample(self._bar_length, label="right").last().dropna().iloc[:-1]
 
-            self._data = df.copy()
-            self._last_tick = self._data.index[-1]
+            self._raw_data = df.copy()
+            self._last_tick = self._raw_data.index[-1]
 
             # set the data if less than _bar_length time as elapsed since the last full historical bar
             # this way we never have a missing boundary bar between historical and stream data
@@ -58,12 +61,15 @@ class GetTickData(tpqoa.tpqoa):
 
         # resamples the tick data (if applicable), while also dropping
         # the last row (as it can be far off the resampled granularity)
-        if (recent_tick - self._last_tick) > self._bar_length:
+        if (recent_tick - self._last_tick) >= self._bar_length:
 
             # append the most recent resampled ticks to self._data
-            self._data = self._data.append(self._tick_data.resample(self._bar_length, label="right").last().ffill().iloc[:-1])
+            self._raw_data = self._raw_data.append(self._tick_data.resample(self._bar_length, label="right").last().ffill().iloc[:-1])
 
             # only keep the last tick bar (which is a pandas DataFrame)
             self._tick_data = self._tick_data.iloc[-1:]
-            self._last_tick = self._data.index[-1]
+            self._last_tick = self._raw_data.index[-1]
+            self.define_strategy()
 
+    def define_strategy(self):
+        pass
