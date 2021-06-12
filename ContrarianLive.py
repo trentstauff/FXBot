@@ -5,9 +5,9 @@ from LiveTrader import LiveTrader
 
 class ContrarianLive(LiveTrader):
 
-    def __init__(self, cfg, instrument, bar_length, window):
+    def __init__(self, cfg, instrument, bar_length, window, units):
         # passes params to the parent class
-        super().__init__(cfg, instrument, bar_length)
+        super().__init__(cfg, instrument, bar_length, units)
         self._window = window
 
     def define_strategy(self):
