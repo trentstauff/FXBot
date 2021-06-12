@@ -12,8 +12,12 @@ class LiveTrader(tpqoa.tpqoa):
         # TODO: More rigorous handling of markets being closed (this is EST dependent, must ensure that is what the datetime is giving)
         if datetime.today().weekday() > 6 and  datetime.today().hour > 17:
             print("Markets are open.")
+        elif datetime.today().weekday() == 5:
+            raise Exception("Sorry, markets are closed")
         elif datetime.today().weekday() >= 4 and datetime.today().hour >= 23:
             raise Exception("Sorry, markets are closed")
+        else:
+            print("Markets are open.")
 
         # passes the config file to tpqoa
         super().__init__(cfg)
