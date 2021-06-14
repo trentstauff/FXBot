@@ -10,8 +10,10 @@ class LiveTrader(tpqoa.tpqoa):
     def __init__(self, cfg, instrument, bar_length, units, history_days=7):
 
         # TODO: More rigorous handling of markets being closed (this is EST dependent, must ensure that is what the datetime is giving)
-        if datetime.today().weekday() > 6 and  datetime.today().hour > 17:
+        if datetime.today().weekday() >= 6 and datetime.today().hour >= 17:
             print("Markets are open.")
+        elif datetime.today().weekday() == 6 and datetime.today().hour < 17:
+            raise Exception("Sorry, markets are closed")
         elif datetime.today().weekday() == 5:
             raise Exception("Sorry, markets are closed")
         elif datetime.today().weekday() >= 4 and datetime.today().hour >= 23:
@@ -47,9 +49,8 @@ class LiveTrader(tpqoa.tpqoa):
             now = datetime.utcnow()
             now = now.replace(microsecond=0)
             past = now - timedelta(days=days)
-            print(now)
+
             bid_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="B", localize=False).c.dropna().to_frame()
-            print(bid_price)
             ask_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="A", localize=False).c.dropna().to_frame()
 
             spread = ask_price - bid_price
@@ -101,7 +102,7 @@ class LiveTrader(tpqoa.tpqoa):
         # if most recent bar in position of strat says to go long, do it
         if self._data["position"].iloc[-1] == 1:
             # if we were neutral, only need to go long "units"
-            if self._positon == 0:
+            if self._position == 0:
                 order = self.create_order(self._instrument, self._units, suppress=True, ret=True)
             # if we were short, need to go long 2 * "units"
             elif self._position == -1:
@@ -113,7 +114,7 @@ class LiveTrader(tpqoa.tpqoa):
         # short position
         elif self._data["position"].iloc[-1] == -1:
             # if we were neutral, only need to go short "units"
-            if self._positon == 0:
+            if self._position == 0:
                 order = self.create_order(self._instrument, -self._units, suppress=True, ret=True)
             # if we were short, need to go short 2 * "units"
             elif self._position == 1:
@@ -125,7 +126,7 @@ class LiveTrader(tpqoa.tpqoa):
         # if we want to go neutral, close out current open position
         elif self._data["position"].iloc[-1] == 0:
 
-            if self._positon == 1:
+            if self._position == 1:
                 order = self.create_order(self._instrument, -self._units, suppress=True, ret=True)
 
             elif self._position == -1:
