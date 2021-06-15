@@ -33,6 +33,8 @@ class LiveTrader(tpqoa.tpqoa):
 
         self._position = 0
 
+        self._profits = []
+
         # set up history used by some trades
         self.setup_history(history_days)
 
@@ -43,35 +45,37 @@ class LiveTrader(tpqoa.tpqoa):
 
     # used to gather historical data used by some strategies (such as SMA)
     def setup_history(self, days=7):
-        # while loop to combat missing bar on boundary of historical and streamed data
-        while True:
-            time.sleep(2)
-            now = datetime.utcnow()
-            now = now.replace(microsecond=0)
-            past = now - timedelta(days=days)
 
-            bid_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="B", localize=False).c.dropna().to_frame()
-            ask_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="A", localize=False).c.dropna().to_frame()
+        if days != 0:
+            # while loop to combat missing bar on boundary of historical and streamed data
+            while True:
+                time.sleep(2)
+                now = datetime.utcnow()
+                now = now.replace(microsecond=0)
+                past = now - timedelta(days=days)
 
-            spread = ask_price - bid_price
+                bid_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="B", localize=False).c.dropna().to_frame()
+                ask_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="A", localize=False).c.dropna().to_frame()
 
-            # create the new dataframe with relevent info
-            df = bid_price
-            df.rename(columns={"c": "bid_price"}, inplace=True)
-            df["ask_price"] = ask_price
-            df["mid_price"] = ask_price - spread
+                spread = ask_price - bid_price
 
-            df["spread"] = spread
+                # create the new dataframe with relevent info
+                df = bid_price
+                df.rename(columns={"c": "bid_price"}, inplace=True)
+                df["ask_price"] = ask_price
+                df["mid_price"] = ask_price - spread
 
-            df = df.resample(self._bar_length, label="right").last().dropna().iloc[:-1]
+                df["spread"] = spread
 
-            self._raw_data = df.copy()
-            self._last_tick = self._raw_data.index[-1]
+                df = df.resample(self._bar_length, label="right").last().dropna().iloc[:-1]
 
-            # set the data if less than _bar_length time as elapsed since the last full historical bar
-            # this way we never have a missing boundary bar between historical and stream
-            if (pd.to_datetime(datetime.utcnow()).tz_localize("UTC") - self._last_tick) < self._bar_length:
-                break
+                self._raw_data = df.copy()
+                self._last_tick = self._raw_data.index[-1]
+
+                # set the data if less than _bar_length time as elapsed since the last full historical bar
+                # this way we never have a missing boundary bar between historical and stream
+                if (pd.to_datetime(datetime.utcnow()).tz_localize("UTC") - self._last_tick) < self._bar_length:
+                    break
 
     # called when new streamed data is successful
     def on_success(self, time, bid, ask):
@@ -94,6 +98,8 @@ class LiveTrader(tpqoa.tpqoa):
             self._last_tick = self._raw_data.index[-1]
             self.define_strategy()
             self.trade()
+            pd.set_option('max_columns', None)
+            print(self._data)
 
     def define_strategy(self):
         pass
@@ -104,11 +110,12 @@ class LiveTrader(tpqoa.tpqoa):
             # if we were neutral, only need to go long "units"
             if self._position == 0:
                 order = self.create_order(self._instrument, self._units, suppress=True, ret=True)
+                self.trade_report(order, 1)
             # if we were short, need to go long 2 * "units"
             elif self._position == -1:
                 order = self.create_order(self._instrument, self._units * 2, suppress=True, ret=True)
+                self.trade_report(order, 1)
 
-            print("Going Long")
             self._position = 1
 
         # short position
@@ -116,11 +123,12 @@ class LiveTrader(tpqoa.tpqoa):
             # if we were neutral, only need to go short "units"
             if self._position == 0:
                 order = self.create_order(self._instrument, -self._units, suppress=True, ret=True)
+                self.trade_report(order, -1)
             # if we were short, need to go short 2 * "units"
             elif self._position == 1:
                 order = self.create_order(self._instrument, -(self._units * 2), suppress=True, ret=True)
+                self.trade_report(order, -1)
 
-            print("Going Short")
             self._position = -1
 
         # if we want to go neutral, close out current open position
@@ -128,14 +136,33 @@ class LiveTrader(tpqoa.tpqoa):
 
             if self._position == 1:
                 order = self.create_order(self._instrument, -self._units, suppress=True, ret=True)
+                self.trade_report(order, 0)
 
             elif self._position == -1:
                 order = self.create_order(self._instrument, self._units, suppress=True, ret=True)
-            print("Going Neutral, Closing Open Position")
+                self.trade_report(order, 0)
 
             self._position = 0
 
     def close_position(self):
         if self._position != 0:
-            self.create_order(self._instrument, units = -(self._position * self._units), suppress=True, ret=True)
+            order = self.create_order(self._instrument, units = -(self._position * self._units), suppress=True, ret=True)
+            self.trade_report(order, 0)
         self._position = 0
+
+    def trade_report(self, order, position):
+
+        time = order["time"]
+        units = order["units"]
+        price = order["price"]
+        profit = float(order["pl"])
+
+        self._profits.append(profit)
+
+        cum_profits = sum(self._profits)
+
+        print(f"")
+        print(f"{time} : {position} --- {units} units, price of ${price}, profit of ${profit}, cum profit of ${cum_profits}")
+
+
+

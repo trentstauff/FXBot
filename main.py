@@ -11,6 +11,8 @@ from IterativeBase import IterativeBase
 from IterativeBacktest import IterativeBacktest
 from LiveTrader import LiveTrader
 from ContrarianLive import ContrarianLive
+from MomentumLive import MomentumLive
+from SMALive import SMALive
 
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
@@ -95,10 +97,10 @@ if __name__ == '__main__':
     # obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
     # obj.test_sma(50,200)
 
-    td = ContrarianLive("oanda.cfg", "EUR_USD", "1m", window=1, units=100000)
+    td = SMALive("oanda.cfg", "EUR_USD", "10s", smas=9, smal=26, units=100000)
 
     print("starting stream")
-    td.stream_data("EUR_USD", stop=100)
+    td.stream_data("EUR_USD", stop=10000)
     print(td.close_position())
     print(td.get_positions())
     print(td._data)
