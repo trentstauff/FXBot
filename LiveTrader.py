@@ -75,7 +75,7 @@ class LiveTrader(tpqoa.tpqoa):
 
                 self._raw_data = df.copy()
                 self._last_tick = self._raw_data.index[-1]
-
+                
                 # set the data if less than _bar_length time as elapsed since the last full historical bar
                 # this way we never have a missing boundary bar between historical and stream
                 if (pd.to_datetime(datetime.utcnow()).tz_localize("UTC") - self._last_tick) < self._bar_length:
@@ -100,8 +100,6 @@ class LiveTrader(tpqoa.tpqoa):
             self._last_tick = self._raw_data.index[-1]
             self.define_strategy()
             self.trade()
-
-
 
     def define_strategy(self):
         pass
