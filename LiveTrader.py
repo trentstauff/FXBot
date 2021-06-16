@@ -3,6 +3,8 @@ import numpy as np
 from datetime import datetime, timedelta, time
 import time
 import tpqoa
+import matplotlib.pyplot as plt
+plt.style.use("seaborn")
 
 
 class LiveTrader(tpqoa.tpqoa):
@@ -80,12 +82,14 @@ class LiveTrader(tpqoa.tpqoa):
     # called when new streamed data is successful
     def on_success(self, time, bid, ask):
         print(time, bid, ask)
+        if self._data is not None:
+            pd.set_option('max_columns', None)
+            print(self._data.tail(1))
 
         recent_tick = pd.to_datetime(time)
 
         df = pd.DataFrame({"bid_price": bid, "ask_price": ask, "mid_price": (ask+bid)/2, "spread": ask-bid}, index=[recent_tick])
         self._tick_data = self._tick_data.append(df)
-
         # resamples the tick data (if applicable), while also dropping
         # the last row (as it can be far off the resampled granularity)
         if (recent_tick - self._last_tick) >= self._bar_length:
@@ -98,8 +102,8 @@ class LiveTrader(tpqoa.tpqoa):
             self._last_tick = self._raw_data.index[-1]
             self.define_strategy()
             self.trade()
-            pd.set_option('max_columns', None)
-            print(self._data)
+
+
 
     def define_strategy(self):
         pass
