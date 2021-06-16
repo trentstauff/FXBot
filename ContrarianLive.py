@@ -12,6 +12,6 @@ class ContrarianLive(LiveTrader):
 
     def define_strategy(self):
         data = self._raw_data.copy()
-        data["returns"] = np.log(data["bid_price"].div(data["bid_price"].shift(1)))
+        data["returns"] = np.log(data["mid_price"].div(data["mid_price"].shift(1)))
         data["position"] = -np.sign(data["returns"].rolling(self._window).mean())
         self._data = data.dropna().copy()

@@ -14,15 +14,15 @@ class BollingerBandsLive(LiveTrader):
     def define_strategy(self):
         data = self._raw_data.copy()
 
-        data["sma"] = data["bid_price"].rolling(self._sma).mean()
-        data["lower"] = data["sma"] - (data["bid_price"].rolling(self._sma).std() * self._deviation)
-        data["upper"] = data["sma"] + (data["bid_price"].rolling(self._sma).std() * self._deviation)
-        data["distance"] = data["bid_price"] - data["sma"]
+        data["sma"] = data["mid_price"].rolling(self._sma).mean()
+        data["lower"] = data["sma"] - (data["mid_price"].rolling(self._sma).std() * self._deviation)
+        data["upper"] = data["sma"] + (data["mid_price"].rolling(self._sma).std() * self._deviation)
+        data["distance"] = data["mid_price"] - data["sma"]
 
         # if price is lower than lower band, indicates oversold, and to go long
-        data["position"] = np.where(data["bid_price"] < data["lower"], 1, np.nan)
+        data["position"] = np.where(data["mid_price"] < data["lower"], 1, np.nan)
         # if price is higher than upper band, indicates overbought, and to go short
-        data["position"] = np.where(data["bid_price"] > data["upper"], -1, data["position"])
+        data["position"] = np.where(data["mid_price"] > data["upper"], -1, data["position"])
         # if we have crossed the sma line, we want to close our current position (be neutral, position=0)
         data["position"] = np.where(data["distance"] * data["distance"].shift(1) < 0, 0, data["position"])
         # clean up any NAN values/holiday vacancies

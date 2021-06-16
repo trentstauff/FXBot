@@ -46,30 +46,32 @@ class LiveTrader(tpqoa.tpqoa):
         self.close_position()
 
     # used to gather historical data used by some strategies (such as SMA)
-    def setup_history(self, days=7):
+    def setup_history(self, days=1):
 
         if days != 0:
             # while loop to combat missing bar on boundary of historical and streamed data
             while True:
-                time.sleep(2)
                 now = datetime.utcnow()
                 now = now.replace(microsecond=0)
                 past = now - timedelta(days=days)
 
-                bid_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="B", localize=False).c.dropna().to_frame()
-                ask_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="A", localize=False).c.dropna().to_frame()
-
-                spread = ask_price - bid_price
-
-                # create the new dataframe with relevent info
-                df = bid_price
-                df.rename(columns={"c": "bid_price"}, inplace=True)
-                df["ask_price"] = ask_price
-                df["mid_price"] = ask_price - spread
-
-                df["spread"] = spread
+                mid_price = self.get_history(instrument=self._instrument, start=past, end=(now+timedelta(seconds=10)), granularity="S5", price="M", localize=False).c.dropna().to_frame()
+                df = mid_price
+                df.rename(columns={"c": "mid_price"}, inplace=True)
 
                 df = df.resample(self._bar_length, label="right").last().dropna().iloc[:-1]
+
+                # uncomment if we need ask,bid,spread pricings
+                # bid_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="B", localize=False).c.dropna().to_frame()
+                # ask_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="A", localize=False).c.dropna().to_frame()
+                # spread = ask_price - bid_price
+                # create the new dataframe with relevent info
+                # df = bid_price
+                # df.rename(columns={"c": "bid_price"}, inplace=True)
+                # df["ask_price"] = ask_price
+                # df["mid_price"] = ask_price - spread
+                # df["spread"] = spread
+                # df = df.resample(self._bar_length, label="right").last().dropna().iloc[:-1]
 
                 self._raw_data = df.copy()
                 self._last_tick = self._raw_data.index[-1]
@@ -82,10 +84,6 @@ class LiveTrader(tpqoa.tpqoa):
     # called when new streamed data is successful
     def on_success(self, time, bid, ask):
         print(time, bid, ask)
-        if self._data is not None:
-            pd.set_option('max_columns', None)
-            print(self._data.tail(1))
-
         recent_tick = pd.to_datetime(time)
 
         df = pd.DataFrame({"bid_price": bid, "ask_price": ask, "mid_price": (ask+bid)/2, "spread": ask-bid}, index=[recent_tick])

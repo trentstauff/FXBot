@@ -98,7 +98,7 @@ if __name__ == '__main__':
     # obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
     # obj.test_sma(50,200)
 
-    td = BollingerBandsLive("oanda.cfg", "EUR_USD", "1m",sma=20, dev=2, units=100000)
+    td = SMALive("oanda.cfg", "EUR_USD", "5s", smas=9, smal=26, units=100000)
 
     print("starting stream")
     td.stream_data("EUR_USD", stop=10000)

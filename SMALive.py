@@ -15,8 +15,8 @@ class SMALive(LiveTrader):
 
     def define_strategy(self):
         data = self._raw_data.copy()
-        data["smas"] = data["bid_price"].rolling(self._smas).mean()
-        data["smal"] = data["bid_price"].rolling(self._smal).mean()
+        data["smas"] = data["mid_price"].rolling(self._smas).mean()
+        data["smal"] = data["mid_price"].rolling(self._smal).mean()
         data["position"] = np.where(data["smas"] > data["smal"], 1, -1)
 
         self._data = data.dropna().copy()
