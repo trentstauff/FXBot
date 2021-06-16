@@ -55,7 +55,7 @@ class LiveTrader(tpqoa.tpqoa):
                 now = now.replace(microsecond=0)
                 past = now - timedelta(days=days)
 
-                mid_price = self.get_history(instrument=self._instrument, start=past, end=(now+timedelta(seconds=10)), granularity="S5", price="M", localize=False).c.dropna().to_frame()
+                mid_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="M", localize=False).c.dropna().to_frame()
                 df = mid_price
                 df.rename(columns={"c": "mid_price"}, inplace=True)
 

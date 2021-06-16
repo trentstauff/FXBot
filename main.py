@@ -14,6 +14,7 @@ from ContrarianLive import ContrarianLive
 from MomentumLive import MomentumLive
 from SMALive import SMALive
 from BollingerBandsLive import BollingerBandsLive
+from MLClassificationLive import MLClassificationLive
 
 plt.style.use("seaborn")
 from FinancialInstrument import FinancialInstrument
@@ -98,7 +99,7 @@ if __name__ == '__main__':
     # obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
     # obj.test_sma(50,200)
 
-    td = SMALive("oanda.cfg", "EUR_USD", "5s", smas=9, smal=26, units=100000)
+    td = MLClassificationLive("oanda.cfg", "EUR_USD", "5s", lags=2, units=100000, history_days=1)
 
     print("starting stream")
     td.stream_data("EUR_USD", stop=10000)
