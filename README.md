@@ -2,6 +2,16 @@
 
 Forex Trading Bot, currently in development.
 
-Current Strats:
+Current Strategies:
+
+Vectorized Backtesting:
+
+Event-Driven Backtesting:
+
+Live Strategies:
+
+Recommendations:
+
+
 
 
