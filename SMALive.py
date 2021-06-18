@@ -5,9 +5,9 @@ from LiveTrader import LiveTrader
 
 class SMALive(LiveTrader):
 
-    def __init__(self, cfg, instrument, bar_length, smas, smal, units):
+    def __init__(self, cfg, instrument, bar_length, smas, smal, units, stop_time=None, stop_loss=None, stop_profit=None):
         # passes params to the parent class
-        super().__init__(cfg, instrument, bar_length, units)
+        super().__init__(cfg, instrument, bar_length, units, stop_time, stop_loss, stop_profit)
 
         # these should be in terms of minutes
         self._smas = smas

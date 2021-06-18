@@ -5,9 +5,9 @@ from LiveTrader import LiveTrader
 
 class MomentumLive(LiveTrader):
 
-    def __init__(self, cfg, instrument, bar_length, window, units):
+    def __init__(self, cfg, instrument, bar_length, window, units, stop_time=None, stop_loss=None, stop_profit=None):
         # passes params to the parent class
-        super().__init__(cfg, instrument, bar_length, units)
+        super().__init__(cfg, instrument, bar_length, units, stop_time, stop_loss, stop_profit)
         self._window = window
 
     def define_strategy(self):

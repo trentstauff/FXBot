@@ -9,7 +9,7 @@ plt.style.use("seaborn")
 
 class LiveTrader(tpqoa.tpqoa):
 
-    def __init__(self, cfg, instrument, bar_length, units, history_days=7):
+    def __init__(self, cfg, instrument, bar_length, units, history_days=7, stop_time=None, stop_loss=None, stop_profit=None):
 
         # TODO: More rigorous handling of markets being closed (this is EST dependent, must ensure that is what the datetime is giving)
         if datetime.today().weekday() >= 6 and datetime.today().hour >= 17:
@@ -33,12 +33,17 @@ class LiveTrader(tpqoa.tpqoa):
         self._last_tick = None
         self._units = units
 
+        self._stop_time = stop_time
+        self._stop_loss = stop_loss
+        self._stop_profit = stop_profit
+
         self._position = 0
 
         self._profits = []
 
         # set up history used by some trades
         self.setup_history(history_days)
+        self.stream_data(self._instrument)
 
     # destructor
     def __del__(self):
@@ -84,7 +89,12 @@ class LiveTrader(tpqoa.tpqoa):
     # called when new streamed data is successful
     def on_success(self, time, bid, ask):
         print(time, bid, ask)
+
         recent_tick = pd.to_datetime(time)
+
+        if self._stop_time and recent_tick.time() >= pd.to_datetime(self._stop_time).time():
+            self.stop_stream = True
+            self.close_position()
 
         df = pd.DataFrame({"bid_price": bid, "ask_price": ask, "mid_price": (ask+bid)/2, "spread": ask-bid}, index=[recent_tick])
         self._tick_data = self._tick_data.append(df)
@@ -98,6 +108,7 @@ class LiveTrader(tpqoa.tpqoa):
             # only keep the last tick bar (which is a pandas DataFrame)
             self._tick_data = self._tick_data.iloc[-1:]
             self._last_tick = self._raw_data.index[-1]
+
             self.define_strategy()
             self.trade()
 
