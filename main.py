@@ -99,11 +99,12 @@ if __name__ == '__main__':
     # obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
     # obj.test_sma(50,200)
 
-    td = BollingerBandsLive("oanda.cfg", "EUR_USD", "5s", sma=20, deviation=1, units=100000, stop_time="18:04")
+    td = BollingerBandsLive("oanda.cfg", "EUR_USD", "5s", sma=20, deviation=1, units=100000, stop_time="18:08")
     print("starting stream")
     print(td.close_position())
     print(td.get_positions())
     print(td._data)
+
     # obj.test_contrarian(window=3)
     # obj.test_bollinger_bands(50)
     # obj.print_current_balance(0)

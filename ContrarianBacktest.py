@@ -177,7 +177,7 @@ class ContrarianBacktest:
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
-            title = f"{self._symbol} | lags {self._window}"
+            title = f"{self._symbol} | window {self._window}"
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:

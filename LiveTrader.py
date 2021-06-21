@@ -18,7 +18,7 @@ class LiveTrader(tpqoa.tpqoa):
             raise Exception("Sorry, markets are closed")
         elif datetime.today().weekday() == 5:
             raise Exception("Sorry, markets are closed")
-        elif datetime.today().weekday() >= 4 and datetime.today().hour >= 23:
+        elif datetime.today().weekday() >= 4 and datetime.today().hour >= 5:
             raise Exception("Sorry, markets are closed")
         else:
             print("Markets are open.")
@@ -40,9 +40,11 @@ class LiveTrader(tpqoa.tpqoa):
         self._position = 0
 
         self._profits = []
+        self._profit = 0
 
         # set up history used by some trades
         self.setup_history(history_days)
+
         self.stream_data(self._instrument)
 
     # destructor
@@ -50,17 +52,19 @@ class LiveTrader(tpqoa.tpqoa):
         # close out position
         self.close_position()
 
-    # used to gather historical data used by some strategies (such as SMA)
+    # used to gather historical data used by some strategies
     def setup_history(self, days=1):
 
         if days != 0:
             # while loop to combat missing bar on boundary of historical and streamed data
             while True:
+
                 now = datetime.utcnow()
                 now = now.replace(microsecond=0)
                 past = now - timedelta(days=days)
 
                 mid_price = self.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="M", localize=False).c.dropna().to_frame()
+
                 df = mid_price
                 df.rename(columns={"c": "mid_price"}, inplace=True)
 
@@ -92,25 +96,42 @@ class LiveTrader(tpqoa.tpqoa):
 
         recent_tick = pd.to_datetime(time)
 
-        if self._stop_time and recent_tick.time() >= pd.to_datetime(self._stop_time).time():
-            self.stop_stream = True
-            self.close_position()
+        stopped = False
 
-        df = pd.DataFrame({"bid_price": bid, "ask_price": ask, "mid_price": (ask+bid)/2, "spread": ask-bid}, index=[recent_tick])
-        self._tick_data = self._tick_data.append(df)
-        # resamples the tick data (if applicable), while also dropping
-        # the last row (as it can be far off the resampled granularity)
-        if (recent_tick - self._last_tick) >= self._bar_length:
+        if self._stop_time:
+            if recent_tick.time() >= pd.to_datetime(self._stop_time).time():
+                self.stop_stream = True
+                self.close_position()
+                stopped = True
 
-            # append the most recent resampled ticks to self._data
-            self._raw_data = self._raw_data.append(self._tick_data.resample(self._bar_length, label="right").last().ffill().iloc[:-1])
+        if self._stop_loss:
+            if self._profit < self._stop_loss:
+                self.stop_stream = True
+                self.close_position()
+                stopped = True
 
-            # only keep the last tick bar (which is a pandas DataFrame)
-            self._tick_data = self._tick_data.iloc[-1:]
-            self._last_tick = self._raw_data.index[-1]
+        if self._stop_profit:
+            if self._profit > self._stop_profit:
+                self.stop_stream = True
+                self.close_position()
+                stopped = True
 
-            self.define_strategy()
-            self.trade()
+        if not stopped:
+            df = pd.DataFrame({"bid_price": bid, "ask_price": ask, "mid_price": (ask+bid)/2, "spread": ask-bid}, index=[recent_tick])
+            self._tick_data = self._tick_data.append(df)
+            # resamples the tick data (if applicable), while also dropping
+            # the last row (as it can be far off the resampled granularity)
+            if (recent_tick - self._last_tick) >= self._bar_length:
+
+                # append the most recent resampled ticks to self._data
+                self._raw_data = self._raw_data.append(self._tick_data.resample(self._bar_length, label="right").last().ffill().iloc[:-1])
+
+                # only keep the last tick bar (which is a pandas DataFrame)
+                self._tick_data = self._tick_data.iloc[-1:]
+                self._last_tick = self._raw_data.index[-1]
+
+                self.define_strategy()
+                self.trade()
 
     def define_strategy(self):
         pass
@@ -171,6 +192,7 @@ class LiveTrader(tpqoa.tpqoa):
         self._profits.append(profit)
 
         cum_profits = sum(self._profits)
+        self._profit = cum_profits
 
         print(f"")
         print(f"{time} : {position} --- {units} units, price of ${price}, profit of ${profit}, cum profit of ${cum_profits}")

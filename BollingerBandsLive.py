@@ -7,7 +7,7 @@ class BollingerBandsLive(LiveTrader):
 
     def __init__(self, cfg, instrument, bar_length, sma, deviation, units, stop_time=None, stop_loss=None, stop_profit=None):
         # passes params to the parent class
-        super().__init__(cfg, instrument, bar_length, units, stop_time, stop_loss, stop_profit)
+        super().__init__(cfg, instrument, bar_length, units, stop_time=stop_time, stop_loss=stop_loss, stop_profit=stop_profit)
         self._sma = sma
         self._deviation = deviation
 
