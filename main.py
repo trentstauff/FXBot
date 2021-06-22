@@ -3,6 +3,7 @@ import tpqoa
 import yfinance as yf
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import datetime, timezone
 
 from MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
 from BollingerBandsBacktest import BollingerBandsBacktest
@@ -98,11 +99,10 @@ if __name__ == '__main__':
 
     # obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
     # obj.test_sma(50,200)
+    stop = datetime(2021,6,21,21,4,6)
 
-    td = BollingerBandsLive("oanda.cfg", "EUR_USD", "5s", sma=20, deviation=1, units=100000, stop_time="18:08")
+    td = BollingerBandsLive("oanda.cfg", "EUR_USD", "30s", sma=20, deviation=1, units=100000, stop_loss=-5)
     print("starting stream")
-    print(td.close_position())
-    print(td.get_positions())
     print(td._data)
 
     # obj.test_contrarian(window=3)

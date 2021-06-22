@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, time
 import time
+
+import pytz
+
 import tpqoa
 import matplotlib.pyplot as plt
 plt.style.use("seaborn")
@@ -9,7 +12,7 @@ plt.style.use("seaborn")
 
 class LiveTrader(tpqoa.tpqoa):
 
-    def __init__(self, cfg, instrument, bar_length, units, history_days=7, stop_time=None, stop_loss=None, stop_profit=None):
+    def __init__(self, cfg, instrument, bar_length, units, history_days=7, stop_datetime=None, stop_loss=None, stop_profit=None):
 
         # TODO: More rigorous handling of markets being closed (this is EST dependent, must ensure that is what the datetime is giving)
         if datetime.today().weekday() >= 6 and datetime.today().hour >= 17:
@@ -33,7 +36,13 @@ class LiveTrader(tpqoa.tpqoa):
         self._last_tick = None
         self._units = units
 
-        self._stop_time = stop_time
+        if stop_datetime:
+            utc_datetime = stop_datetime.astimezone(pytz.utc)
+
+            self._stop_datetime = utc_datetime
+        else:
+            self._stop_datetime = None
+
         self._stop_loss = stop_loss
         self._stop_profit = stop_profit
 
@@ -98,8 +107,8 @@ class LiveTrader(tpqoa.tpqoa):
 
         stopped = False
 
-        if self._stop_time:
-            if recent_tick.time() >= pd.to_datetime(self._stop_time).time():
+        if self._stop_datetime:
+            if recent_tick >= self._stop_datetime:
                 self.stop_stream = True
                 self.close_position()
                 stopped = True
@@ -115,6 +124,9 @@ class LiveTrader(tpqoa.tpqoa):
                 self.stop_stream = True
                 self.close_position()
                 stopped = True
+
+        if stopped:
+            print("Stop triggered, ending stream.")
 
         if not stopped:
             df = pd.DataFrame({"bid_price": bid, "ask_price": ask, "mid_price": (ask+bid)/2, "spread": ask-bid}, index=[recent_tick])
