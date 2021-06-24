@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tpqoa
 
-plt.style.use("seaborn")
+from backtesting.Backtester import Backtester
 
-
-class MomentumBacktest:
+class MomentumBacktest(Backtester):
     """
     Class implementing vectorized back-testing of a Momentum Strategy.
     This strategy should only be used alongside other strategies, on it's own it is very sensitive
@@ -15,90 +14,36 @@ class MomentumBacktest:
     profits, or magnifying your losses.
     """
 
-    def __init__(self, symbol, start, end, window=1, granularity="D", trading_cost=0):
+    def __init__(self, instrument, start, end, window=1, granularity="D", trading_cost=0):
         """
         Initializes the ContrarianBacktest object.
 
         Args:
-            symbol (string): A string holding the ticker symbol of instrument to be tested
+            instrument (string): A string holding the ticker instrument of instrument to be tested
             start (string): The start date of the testing period
             end (string): The end date of the testing period
             window (int): Length of lags that drives the position.
-            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-        self._symbol = symbol
-        self._start = start
-        self._end = end
+
         self._window = window
-        self._granularity = granularity
-        self._tc = trading_cost
 
-        self._results = None
-
-        self._data = self.acquire_data()
-
-    def __repr__(self):
-        return f"MomentumBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )"
-
-    def acquire_data(self):
-        """
-        A general function to acquire data of symbol from a source.
-
-        Returns:
-            Returns a Pandas dataframe containing downloaded info.
-        """
-        oanda = tpqoa.tpqoa("../oanda.cfg")
-
-        df = oanda.get_history(
-            self._symbol, self._start, self._end, self._granularity, "B"
+        # passes params to the parent class
+        super().__init__(
+            instrument,
+            start,
+            end,
+            granularity,
+            trading_cost
         )
 
-        # only care for the closing price
-        df = df.c.to_frame()
-        df.rename(columns={"c": "price"}, inplace=True)
+    def __repr__(self):
+        return f"MomentumBacktest( instrument={self._instrument}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )"
 
-        df.dropna(inplace=True)
-
-        df["returns"] = np.log(df.div(df.shift(1)))
-
-        return df
-
-    def resample(self, granularity):
+    def test(self, window=1, mute=False):
         """
-        Resamples the symbols dataset to be in buckets of the passed granularity (IE "W", "D", "H").
-
-        Args:
-            granularity (string): The new granularity for the dataset
-        """
-        self._granularity = granularity
-        self._data.resample(granularity)
-        return
-
-    def get_data(self):
-        """
-        Getter function to retrieve current symbol's dataframe.
-
-        Returns:
-            Returns the stored Pandas dataframe with information regarding the symbol
-        """
-        return self._data
-
-    def get_results(self):
-        """
-        Getter function to retrieve current instrument's dataframe after testing the strategy.
-
-        Returns:
-            Returns a Pandas dataframe with results from back-testing the strategy
-        """
-        if self._results is not None:
-            return self._results
-        else:
-            print("Please run .test() first.")
-
-    def test(self, window=1):
-        """
-        Executes the back-testing of the Contrarian strategy on the set instrument.
+        Executes the back-testing of the Momentum strategy on the set instrument.
 
         Returns:
             Returns a tuple, (float: performance, float: out_performance)
@@ -106,6 +51,10 @@ class MomentumBacktest:
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
+
+        if not mute:
+            print(f"Testing strategy with window = {self._window} ...")
+
         # IE if no lags parameter included and we have a stored lags, use that as the lags instead
         if self._window != 1 and window == 1:
             window = self._window
@@ -113,6 +62,7 @@ class MomentumBacktest:
         data = self._data.copy()
 
         data["position"] = np.sign(data["returns"].rolling(window).mean())
+
         data["strategy"] = data["position"].shift(1) * data["returns"]
 
         data.dropna(inplace=True)
@@ -131,6 +81,9 @@ class MomentumBacktest:
         # out_performance is our strats performance vs a buy and hold on the interval
         out_performance = performance - data["creturns"].iloc[-1]
 
+        if not mute:
+            print(f"Return: {round(performance*100 - 100,2)}%, Out Performance: {round(out_performance*100,2)}%")
+
         return performance, out_performance
 
     def optimize(self, window_range=(1, 252)):
@@ -145,9 +98,12 @@ class MomentumBacktest:
             -> "max_return" is the optimized (maximum) return rate of the instrument on the interval [start,end]
             -> "best_window" is the optimized lags that enables a maximum return
         """
+
         if window_range[0] >= window_range[1]:
             print("The range must satisfy: (X,Y) -> X < Y")
             return
+
+        print("Optimizing strategy...")
 
         max_return = float("-inf")
         best_window = 1
@@ -161,7 +117,7 @@ class MomentumBacktest:
             if window == (window_range[1] / 1.5):
                 print("75%...")
 
-            current_return = self.test(window)[0]
+            current_return = self.test(window, mute=True)[0]
 
             if current_return > max_return:
                 max_return = current_return
@@ -171,18 +127,9 @@ class MomentumBacktest:
         self._window = best_window
 
         # run the final test to store results
-        self.test()
+        self.test(mute=True)
+
+        print(f"Strategy optimized on interval {self._start} - {self._end}")
+        print(f"Max Return: {round(max_return * 100 - 100, 2)}%, Best Window: {best_window} ({self._granularity})")
 
         return max_return, best_window
-
-    def plot_results(self):
-        """
-        Plots the results of test() or optimize().
-        Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
-        """
-        if self._results is not None:
-            title = f"{self._symbol} | lags {self._window}"
-            self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
-            plt.show()
-        else:
-            print("Please run test() or optimize().")

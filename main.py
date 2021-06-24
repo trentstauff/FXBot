@@ -7,56 +7,43 @@ from livetrading.BollingerBandsLive import BollingerBandsLive
 
 from backtesting.IterativeBacktest import IterativeBacktest
 
-plt.style.use("seaborn")
+from backtesting.ContrarianBacktest import ContrarianBacktest
+from backtesting.BollingerBandsBacktest import BollingerBandsBacktest
+from backtesting.MomentumBacktest import MomentumBacktest
+from backtesting.MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
+from backtesting.SMABacktest import SMABacktest
+from backtesting.MLClassificationBacktest import MLClassificationBacktest
 
-
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def yahoo():
-    tickers = ["AAPL", "BB", "TD"]
-    stocks = yf.download(tickers, start="2010-01-01", end="2019-02-06")
-    close = stocks.loc[:, "Close"].copy()
-    norm = close.div(close.iloc[0]).mul(100)
-    norm.plot(figsize=(15, 8), fontsize=13)
-    plt.legend(fontsize=13)
-    plt.show()
-
-
-def api_info():
-    # Use a breakpoint in the code line below to debug your script
-    oanda = tpqoa.tpqoa("oanda.cfg")
-
-    # print(oanda.account_type)
-    # print(oanda.account_id)
-    print(oanda.get_instruments())
-    # TODO USE THIS TO GET HISTORICAL DATA!!!!!!!!!!!!!!
-    df = oanda.get_history("EUR_USD", "2020-01-01", "2020-12-31", "M30", "B")
-    print(df)
-    # print(df.info())
-    # # oanda.stream_data('USD_CAD', stop=10)
-    # oanda.create_order("EUR_USD", 100000, sl_distance=0.1)
-    #
-    # x = 0
-    # while(x < 1000000000):
-    #     x += 1
-    #
-    # oanda.create_order("EUR_USD", -100000, sl_distance=0.1)
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == "__main__":
 
-    # api_info()
+    # step 1 ensure they have this
+    cfg = "oanda.cfg"
 
-    # obj = SMABacktest("EUR_USD", 30, 200, "2010-01-01", "2020-06-30", "D", 0)
-    # print(obj.test())
+    # step 1.5 open oanda connection
+    oanda = tpqoa.tpqoa("oanda.cfg")
+
+    # step 2 decide instrument
+    instrument = None
+    print(oanda.get_instruments())
+
+    # step 3 decide if live or backtesting
+
+    print("Live Trading (1) or Backtesting (2)?")
+
+    # step 4, depending on decision, showcase available strategies
+    live_strategies = ["sma", "bollinger_bands", "contrarian", "momentum", "ml_classification"]
+    backtesting_strategies = ["sma", "bollinger_bands", "contrarian", "momentum", "ml_classification", "ml_regression"]
+
+    live_params = ["bar_length", "units", "history_days", "stop_datetime", "stop_profit"]
+
+    required_params = {"sma": ()}
+
+
+    # obj = SMABacktest("EUR_USD", "2010-01-01", "2020-06-30", 30, 200, "D", 0)
+    # obj.test()
     # obj.plot_results()
     # print(obj.get_results())
-    # print(obj.optimize())
+    # obj.optimize()
     # obj = SMABacktest("EUR_USD", 30, 200, "2010-01-01", "2020-06-30", "D", 0.1)
     # print(obj.test())
     # obj.plot_results()
@@ -66,38 +53,49 @@ if __name__ == "__main__":
     # obj.plot_results()
 
     # obj = ContrarianBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0)
-    # print(obj.optimize())
+    # obj.test()
     # obj.plot_results()
+    # obj.optimize()
+    # obj.plot_results()
+    # print(obj)
+
+    # obj = MomentumBacktest("EUR_USD", "2010-01-01", "2020-06-30", window=1, granularity="D", trading_cost=0)
     #
+    # obj.test()
+    # obj.plot_results()
+    # obj.optimize()
+    # obj.plot_results()
+    # print(obj)
+
     # obj = MomentumBacktest("EUR_USD", "2010-01-01", "2020-06-30", 20, "D", 0.0001)
     # print(obj.optimize())
     # obj.plot_results()
 
     # obj = MultipleRegressionModelPredictor("EUR_USD", ("2019-01-01", "2019-12-30"), ("2020-01-01", "2020-08-30"), 5, granularity="M30", trading_cost=0.000015)
-    # print(obj.get_data())
     # obj.test()
-    #
     # obj.plot_results()
-    # print(obj.get_hitratio())
+    # obj.get_hitratio()
 
-    # obj = MLClassificationBacktest("EUR_USD", "2019-01-01", "2020-08-30", granularity="M5", trading_cost=0)
-    # print(obj.get_data())
-    # obj.test()
-    #
-    # obj.plot_results()
-    # print(obj.get_hitratio())
+    obj = MLClassificationBacktest("EUR_USD", "2019-01-01", "2020-08-30", granularity="M5", trading_cost=0)
+    print(obj.get_data())
+    obj.test()
 
-    obj = IterativeBacktest(
-        "oanda.cfg",
-        "EUR_USD",
-        "2006-12-31",
-        "2020-06-30",
-        100000,
-        granularity="D",
-        use_spread=False,
-    )
-    obj.test_contrarian(1)
-    stop = datetime(2021, 6, 21, 21, 4, 6)
+    obj.plot_results()
+    obj.get_hitratio()
+
+    # obj = IterativeBacktest(
+    #     "oanda.cfg",
+    #     "EUR_USD",
+    #     "2006-12-31",
+    #     "2020-06-30",
+    #     100000,
+    #     granularity="D",
+    #     use_spread=False,
+    # )
+    # obj.test_contrarian(1)
+    # stop = datetime(2021, 6, 21, 21, 4, 6)
+
+
 
     # api_info()
 

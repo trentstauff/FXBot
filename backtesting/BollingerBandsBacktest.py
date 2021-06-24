@@ -3,80 +3,47 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tpqoa
 
-plt.style.use("seaborn")
+from backtesting.Backtester import Backtester
 
 
-class BollingerBandsBacktest:
+class BollingerBandsBacktest(Backtester):
     """
     Class implementing vectorized back-testing of a Bollinger Bands trading strategy.
     """
-
     def __init__(
-        self, symbol, start, end, sma=20, deviation=2, granularity="D", trading_cost=0
+        self, instrument, start, end, sma=20, deviation=2, granularity="D", trading_cost=0
     ):
         """
         Initializes the BollingerBandsBacktest object.
 
         Args:
-            symbol (string): A string holding the ticker symbol of instrument to be tested
+            instrument (string): A string holding the ticker instrument of instrument to be tested
             start (string): The start date of the testing period
             end (string): The end date of the testing period
             sma (int) <DEFAULT = 20>: Length of sliding average lags
             deviation (int) <DEFAULT = 2>: Standard deviation multiplier for upper and lower bands
-            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-        self._symbol = symbol
-        self._start = start
-        self._end = end
+
         self._sma = sma
         self._deviation = deviation
-        self._granularity = granularity
-        self._tc = trading_cost
 
-        # stores a Pandas dataframe holding the results of test() or optimize() (most recent of the two)
-        self._results = None
-
-        # _data stores a Pandas dataframe of general values to be used by the testing strategy
-        # _data is built by acquiring data (download) followed by preparing data (strategy specific info)
-        self._data = self.acquire_data()
-        self._data = self.prepare_data()
+        # passes params to the parent class
+        super().__init__(
+            instrument,
+            start,
+            end,
+            granularity,
+            trading_cost
+        )
 
     def __repr__(self):
-        return f"BollingerBandsBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, sma={self._sma}, deviation={self._deviation}, granularity={self._granularity}, trading_cost={self._tc}  )"
-
-    def acquire_data(self):
-        """
-        A general function to acquire data of symbol from a source.
-
-        Returns:
-            Returns a Pandas dataframe containing downloaded info.
-            Includes: Date, Price, and Returns (%) (on the interval [start,end])
-        """
-        oanda = tpqoa.tpqoa("../oanda.cfg")
-
-        try:
-            df = oanda.get_history(
-                self._symbol, self._start, self._end, self._granularity, "B"
-            )
-        except:
-            raise ValueError(
-                "Please choose a supported instrument trading on OANDA, in the form XXX/YYY or XXX_YYY."
-            )
-
-        # only care for the closing price
-        df = df.c.to_frame()
-        df.rename(columns={"c": "price"}, inplace=True)
-
-        df.dropna(inplace=True)
-
-        df["returns"] = np.log(df.div(df.shift(1)))
-        return df
+        return f"BollingerBandsBacktest( instrument={self._instrument}, start={self._start}, end={self._end}, sma={self._sma}, deviation={self._deviation}, granularity={self._granularity}, trading_cost={self._tc}  )"
 
     def prepare_data(self):
         """
         Prepares data for strategy-specific information.
-
         Returns:
             Returns a Pandas dataframe
         """
@@ -88,31 +55,10 @@ class BollingerBandsBacktest:
 
         return df
 
-    def get_data(self):
-        """
-        Getter function to retrieve current symbol's dataframe.
-
-        Returns:
-            Returns the stored Pandas dataframe with information regarding the symbol
-        """
-        return self._data
-
-    def get_results(self):
-        """
-        Getter function to retrieve current symbol's dataframe after testing the strategy.
-
-        Returns:
-            Returns a Pandas dataframe with results from back-testing the strategy
-        """
-        if self._results is not None:
-            return self._results
-        else:
-            print("Please run .test() first.")
-
     def set_params(self, sma=None, deviation=None):
         """
         Allows the caller to reset/override the current sma value and the deviation value,
-        which also updates the prepared dataset associated with the symbol.
+        which also updates the prepared dataset associated with the instrument.
 
         Args:
             sma (int): The new sma
@@ -146,7 +92,7 @@ class BollingerBandsBacktest:
                 * deviation
             )
 
-    def test(self):
+    def test(self, mute=False):
         """
         Executes the back-testing of the Bollinger Bands strategy on the set instrument.
 
@@ -156,6 +102,10 @@ class BollingerBandsBacktest:
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
+
+        if not mute:
+            print(f"Testing strategy with sma = {self._sma}, deviation = {self._deviation} ...")
+
         data = self._data.copy().dropna()
 
         data["distance"] = data["price"] - data["sma"]
@@ -191,6 +141,9 @@ class BollingerBandsBacktest:
         # out_performance is our strats performance vs a buy and hold on the interval
         out_performance = performance - data["creturns"].iloc[-1]
 
+        if not mute:
+            print(f"Return: {round(performance*100 - 100,2)}%, Out Performance: {round(out_performance*100,2)}%")
+
         return performance, out_performance
 
     def optimize(self, sma_range=(1, 252), dev_range=(1, 3)):
@@ -204,9 +157,15 @@ class BollingerBandsBacktest:
             -> "best_dev" is the optimized global best_dev value that maximizes return
         """
 
+        ###############################################
+        print("Warning: There is a current issue that will cause this optimization to take a long time.")
+        ###############################################
+
         if sma_range[0] >= sma_range[1] or dev_range[0] >= dev_range[1]:
             print("The ranges must satisfy: (X,Y) -> X < Y")
             return
+
+        print("Optimizing strategy...")
 
         max_return = float("-inf")
         best_sma = -1
@@ -222,7 +181,7 @@ class BollingerBandsBacktest:
 
             for dev in range(dev_range[0], dev_range[1]):
                 self.set_params(sma, dev)
-                current_return = self.test()[0]
+                current_return = self.test(mute=True)[0]
 
                 if current_return > max_return:
                     max_return = current_return
@@ -230,18 +189,10 @@ class BollingerBandsBacktest:
                     best_dev = dev
 
         self.set_params(best_sma, best_dev)
-        self.test()
+        self.test(mute=True)
+
+        print(f"Strategy optimized on interval {self._start} - {self._end}")
+        print(f"Max Return: {round(max_return * 100 - 100, 2) - 100}%, Best SMA: {best_sma} ({self._granularity}), Best Deviation: {best_dev}")
 
         return max_return, best_sma, best_dev
 
-    def plot_results(self):
-        """
-        Plots the results of test() or optimize().
-        Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
-        """
-        if self._results is not None:
-            title = f"Bollinger Bands: {self._symbol} | sma {self._sma}, deviation {self._deviation}"
-            self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
-            plt.show()
-        else:
-            print("Please run test() or optimize().")

@@ -4,84 +4,41 @@ import matplotlib.pyplot as plt
 import tpqoa
 from sklearn.linear_model import LogisticRegression
 
-plt.style.use("seaborn")
+from backtesting.Backtester import Backtester
 
 
-class MLClassificationBacktest:
+class MLClassificationBacktest(Backtester):
     """
     Class implementing the vectorized backtesting of machine learning strategies.
     In this case, Classification.
     """
 
-    def __init__(self, symbol, start, end, granularity="D", trading_cost=0):
+    def __init__(self, instrument, start, end, granularity="D", trading_cost=0):
         """
         Initializes the MLClassificationBacktest object.
 
         Args:
-            symbol (string): A string holding the ticker symbol of instrument to be tested
+            instrument (string): A string holding the ticker instrument of instrument to be tested
             start (string): The start date for the instrument
             end (string): The end date for the instrument
-            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-        self._symbol = symbol
-        self._start = start
-        self._end = end
-        self._granularity = granularity
-        self._tc = trading_cost
 
         # low regularization
         self._model = LogisticRegression(C=1e6, max_iter=100000, multi_class="ovr")
-        self._results = None
 
-        self._data = self.acquire_data()
-
-    def __repr__(self):
-        return f"MLClassificationBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )"
-
-    def acquire_data(self):
-        """
-        A general function to acquire data of symbol from a source.
-
-        Returns:
-            Returns a Pandas dataframe containing downloaded info.
-        """
-        oanda = tpqoa.tpqoa("../oanda.cfg")
-
-        df = oanda.get_history(
-            self._symbol, self._start, self._end, self._granularity, "B"
+        # passes params to the parent class
+        super().__init__(
+            instrument,
+            start,
+            end,
+            granularity,
+            trading_cost
         )
 
-        # only care for the closing price
-        df = df.c.to_frame()
-        df.rename(columns={"c": "price"}, inplace=True)
-
-        df.dropna(inplace=True)
-
-        df["returns"] = np.log(df.div(df.shift(1)))
-
-        return df
-
-    def get_data(self):
-        """
-        Getter function to retrieve current symbol's dataframe.
-
-        Returns:
-            Returns the stored Pandas dataframe with information regarding the symbol
-        """
-        return self._data
-
-    def get_results(self):
-        """
-        Getter function to retrieve current instrument's dataframe after testing the strategy.
-
-        Returns:
-            Returns a Pandas dataframe with results from back-testing the strategy
-        """
-        if self._results is not None:
-            return self._results
-        else:
-            print("Please run .test() first.")
+    def __repr__(self):
+        return f"MLClassificationBacktest( instrument={self._instrument}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )"
 
     def get_hitratio(self):
         """
@@ -90,6 +47,7 @@ class MLClassificationBacktest:
         Returns:
             Returns the hit ratio
         """
+        print(self._hitratio)
         return self._hitratio
 
     def split_data(self, start, end):
@@ -137,12 +95,15 @@ class MLClassificationBacktest:
 
     def test(self, train_ratio=0.7, lags=5):
         """
-        Backtests the strategy.
+        Backtests the model and then forward tests the strategy.
 
         Args:
             train_ratio (float [0, 1.0]) <DEFAULT = 0.7>: Splits the dataset into backtesting set (train_ratio) and test set (1-train_ratio)
             lags (int) <DEFAULT = 5>: The number of return lags serving as model features
         """
+
+        print(f"Testing strategy with train_ratio = {train_ratio}, lags = {lags} ...")
+
         self._lags = lags
 
         df = self._data.copy()
@@ -201,16 +162,6 @@ class MLClassificationBacktest:
         # outperformance of strat vs buy and hold on interval
         out_performance = performance - self._results["creturns"].iloc[-1]
 
-        return performance, out_performance
+        print(f"Return: {round(performance * 100 - 100, 2)}%, Out Performance: {round(out_performance * 100, 2)}%")
 
-    def plot_results(self):
-        """
-        Plots the results of test().
-        Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
-        """
-        if self._results is not None:
-            title = f"{self._symbol} | Logistic Regression: Lags={self._lags}, Granularity={self._granularity}, Trading Cost={self._tc}"
-            self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
-            plt.show()
-        else:
-            print("Please run test().")
+        return performance, out_performance
