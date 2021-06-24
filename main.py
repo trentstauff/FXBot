@@ -4,6 +4,7 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime, timezone
+from helpers import helpers
 
 from MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
 from BollingerBandsBacktest import BollingerBandsBacktest
@@ -101,9 +102,12 @@ if __name__ == '__main__':
     # obj.test_sma(50,200)
     stop = datetime(2021,6,21,21,4,6)
 
-    td = BollingerBandsLive("oanda.cfg", "EUR_USD", "30s", sma=20, deviation=1, units=100000, stop_loss=-5)
-    print("starting stream")
-    print(td._data)
+    # api_info()
+
+    helpers.find_optimal_trading_time("oanda.cfg", "EUR_USD", "2019-07-21", "2020-10-20", granularity="M30")
+    # td = BollingerBandsLive("oanda.cfg", "EUR_USD", "30s", sma=20, deviation=1, units=100000, stop_loss=-5)
+    # print("starting stream")
+    # print(td._data)
 
     # obj.test_contrarian(window=3)
     # obj.test_bollinger_bands(50)
