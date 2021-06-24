@@ -15,19 +15,20 @@ plt.style.use("seaborn")
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
+
 def yahoo():
     tickers = ["AAPL", "BB", "TD"]
-    stocks = yf.download(tickers, start = "2010-01-01", end = "2019-02-06")
+    stocks = yf.download(tickers, start="2010-01-01", end="2019-02-06")
     close = stocks.loc[:, "Close"].copy()
     norm = close.div(close.iloc[0]).mul(100)
-    norm.plot(figsize= (15,8), fontsize = 13)
-    plt.legend(fontsize = 13)
+    norm.plot(figsize=(15, 8), fontsize=13)
+    plt.legend(fontsize=13)
     plt.show()
 
 
 def api_info():
     # Use a breakpoint in the code line below to debug your script
-    oanda = tpqoa.tpqoa('oanda.cfg')
+    oanda = tpqoa.tpqoa("oanda.cfg")
 
     # print(oanda.account_type)
     # print(oanda.account_id)
@@ -45,8 +46,9 @@ def api_info():
     #
     # oanda.create_order("EUR_USD", -100000, sl_distance=0.1)
 
+
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # api_info()
 
@@ -85,9 +87,17 @@ if __name__ == '__main__':
     # obj.plot_results()
     # print(obj.get_hitratio())
 
-    obj = IterativeBacktest("oanda.cfg", "EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=False)
+    obj = IterativeBacktest(
+        "oanda.cfg",
+        "EUR_USD",
+        "2006-12-31",
+        "2020-06-30",
+        100000,
+        granularity="D",
+        use_spread=False,
+    )
     obj.test_contrarian(1)
-    stop = datetime(2021,6,21,21,4,6)
+    stop = datetime(2021, 6, 21, 21, 4, 6)
 
     # api_info()
 
@@ -108,5 +118,3 @@ if __name__ == '__main__':
     # obj.close_position(-1)
     # obj.plot_data("spread")
     # print(obj.bar_info(100))
-
-

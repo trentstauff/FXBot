@@ -10,6 +10,7 @@ class SMABacktest:
     """
     Class implementing vectorized back-testing of a SMA trading strategy.
     """
+
     def __init__(self, symbol, start, end, smas, smal, granularity="D", trading_cost=0):
         """
         Initializes the SMABacktest object.
@@ -40,7 +41,7 @@ class SMABacktest:
         self._data = self.prepare_data()
 
     def __repr__(self):
-        return f"SMABacktest( symbol={self._symbol}, start={self._start}, end={self._end}, smas={self._smas}, smal={self._smal}, granularity={self._granularity}, trading_cost={self._tc}  )";
+        return f"SMABacktest( symbol={self._symbol}, start={self._start}, end={self._end}, smas={self._smas}, smal={self._smal}, granularity={self._granularity}, trading_cost={self._tc}  )"
 
     def acquire_data(self):
         """
@@ -50,9 +51,11 @@ class SMABacktest:
             Returns a Pandas dataframe containing downloaded info.
             Includes: Date, Price, and Returns (%) (on the interval [start,end])
         """
-        oanda = tpqoa.tpqoa('../oanda.cfg')
+        oanda = tpqoa.tpqoa("../oanda.cfg")
 
-        df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
+        df = oanda.get_history(
+            self._symbol, self._start, self._end, self._granularity, "B"
+        )
 
         # only care for the closing price
         df = df.c.to_frame()
@@ -98,7 +101,7 @@ class SMABacktest:
         else:
             print("Please run .test() first.")
 
-    def set_params(self, SMAS = None, SMAL = None):
+    def set_params(self, SMAS=None, SMAL=None):
         """
         Allows the caller to reset/override the current SMA (Short and Long) values individually or together,
         which also updates the prepared dataset (rolling SMA values) associated with the symbol.
@@ -167,17 +170,20 @@ class SMABacktest:
             -> "GSMAL" is the optimized global smal value that maximizes return
         """
         print("Attempting all possibilities. This will take a while.")
-        max_return = float('-inf')
+        max_return = float("-inf")
         GSMAS = -1
         GSMAL = -1
 
-        for SMAS in range(10,50):
+        for SMAS in range(10, 50):
 
-            if SMAS == 13: print("25%...")
-            if SMAS == 25: print("50%...")
-            if SMAS == 38: print("75%...")
+            if SMAS == 13:
+                print("25%...")
+            if SMAS == 25:
+                print("50%...")
+            if SMAS == 38:
+                print("75%...")
 
-            for SMAL in range(100,252):
+            for SMAL in range(100, 252):
 
                 self.set_params(SMAS, SMAL)
                 current_return = self.test()[0]
