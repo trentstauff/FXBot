@@ -16,9 +16,11 @@ class BollingerBandsLive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
-        # passes params to the parent class
+
         self._sma = sma
         self._deviation = deviation
+
+        # passes params to the parent class
         super().__init__(
             cfg,
             instrument,

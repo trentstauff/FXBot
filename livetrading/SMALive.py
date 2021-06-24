@@ -16,6 +16,11 @@ class SMALive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
+        
+        # these should be in terms of minutes
+        self._smas = smas
+        self._smal = smal
+
         # passes params to the parent class
         super().__init__(
             cfg,
@@ -26,10 +31,6 @@ class SMALive(LiveTrader):
             stop_loss=stop_loss,
             stop_profit=stop_profit,
         )
-
-        # these should be in terms of minutes
-        self._smas = smas
-        self._smal = smal
 
     def define_strategy(self):
         data = self._raw_data.copy()

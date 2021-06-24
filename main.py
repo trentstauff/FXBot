@@ -30,13 +30,33 @@ if __name__ == "__main__":
 
     print("Live Trading (1) or Backtesting (2)?")
 
+    choice = None
+
     # step 4, depending on decision, showcase available strategies
     live_strategies = ["sma", "bollinger_bands", "contrarian", "momentum", "ml_classification"]
     backtesting_strategies = ["sma", "bollinger_bands", "contrarian", "momentum", "ml_classification", "ml_regression"]
 
     live_params = ["bar_length", "units", "history_days", "stop_datetime", "stop_profit"]
 
-    required_params = {"sma": ()}
+    required_live_params = {
+        "all": [["bar_length", None], ["units", None], ["history_days", None], ["stop_datetime", None], ["stop_profit", None]],
+        "sma": [["smas", None], ["smal", None]],
+        "momentum": [["window", None]],
+        "contrarian": [["window", None]],
+        "bollinger_bands": [["sma", None], ["deviation", None]]
+        "ml_classification": [],
+        "ml_regression": [["backtest_range", None], ["forwardtest_range", None], ["lags", None]]
+    }
+
+    required_backtesting_params = {
+        "all": [["start", None], ["end", None], ["trading_cost", 0], ["granularity", None]],
+        "sma": [["smas", None], ["smal", None]],
+        "momentum": [["window", None]],
+        "contrarian": [["window", None]],
+        "bollinger_bands": [["sma", None], ["deviation", None]]
+        "ml_classification": [],
+        "ml_regression": [["backtest_range", None], ["forwardtest_range", None], ["lags", None]]
+    }
 
 
     # obj = SMABacktest("EUR_USD", "2010-01-01", "2020-06-30", 30, 200, "D", 0)
@@ -76,12 +96,12 @@ if __name__ == "__main__":
     # obj.plot_results()
     # obj.get_hitratio()
 
-    obj = MLClassificationBacktest("EUR_USD", "2019-01-01", "2020-08-30", granularity="M5", trading_cost=0)
-    print(obj.get_data())
-    obj.test()
-
-    obj.plot_results()
-    obj.get_hitratio()
+    # obj = MLClassificationBacktest("EUR_USD", "2019-01-01", "2020-08-30", granularity="M5", trading_cost=0)
+    # print(obj.get_data())
+    # obj.test()
+    #
+    # obj.plot_results()
+    # obj.get_hitratio()
 
     # obj = IterativeBacktest(
     #     "oanda.cfg",

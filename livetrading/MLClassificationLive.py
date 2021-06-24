@@ -19,6 +19,10 @@ class MLClassificationLive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
+
+        self._lags = lags
+        self._model = None
+
         # passes params to the parent class
         super().__init__(
             cfg,
@@ -30,8 +34,7 @@ class MLClassificationLive(LiveTrader):
             stop_loss=stop_loss,
             stop_profit=stop_profit,
         )
-        self._lags = lags
-        self._model = None
+
         self.fit_model()
 
     def fit_model(self):

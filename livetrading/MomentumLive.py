@@ -15,6 +15,9 @@ class MomentumLive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
+
+        self._window = window
+
         # passes params to the parent class
         super().__init__(
             cfg,
@@ -25,7 +28,6 @@ class MomentumLive(LiveTrader):
             stop_loss=stop_loss,
             stop_profit=stop_profit,
         )
-        self._window = window
 
     def define_strategy(self):
         data = self._raw_data.copy()
