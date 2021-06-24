@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 
 class IterativeBase:
 
-    def __init__(self, symbol, start, end, amount, granularity="D", use_spread=True):
+    def __init__(self, cfg, symbol, start, end, amount, granularity="D", use_spread=True):
+        self._cfg = cfg
         self._symbol = symbol
         self._start = start
         self._end = end
@@ -25,7 +26,7 @@ class IterativeBase:
        """
        A general function to acquire data of an instrument from a source.
        """
-       oanda = tpqoa.tpqoa('../oanda.cfg')
+       oanda = tpqoa.tpqoa(self._cfg)
 
        bid_df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
        ask_df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "A")

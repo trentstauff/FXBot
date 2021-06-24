@@ -85,8 +85,8 @@ if __name__ == '__main__':
     # obj.plot_results()
     # print(obj.get_hitratio())
 
-    obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
-    obj.test_sma(50,200)
+    obj = IterativeBacktest("oanda.cfg", "EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
+    obj.test_contrarian(2)
     stop = datetime(2021,6,21,21,4,6)
 
     # api_info()
