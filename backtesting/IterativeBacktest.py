@@ -82,6 +82,29 @@ class IterativeBacktest(IterativeBase):
 
         self.close_position(bar + 1)
 
+    def test_momentum(self, window=1):
+        print(f"Testing Momentum strategy on {self._symbol} with window={window}")
+
+        self.reset()
+
+        # prepares the data
+        self._data["rolling_returns"] = self._data["returns"].rolling(window).mean()
+        self._data.dropna(inplace=True)
+
+        for bar in range(len(self._data) - 1):
+            if self._data["rolling_returns"].iloc[bar] <= 0:
+                # go short
+                if self._position in [0, 1]:
+                    self.go_short(bar, amount="all")
+                    self._position = -1
+            else:
+                # go long
+                if self._position in [0, -1]:
+                    self.go_long(bar, amount="all")
+                    self._position = 1
+
+        self.close_position(bar + 1)
+
     def test_bollinger_bands(self, sma, std=2):
         print(
             f"Testing Bollinger Bands strategy on {self._symbol} with sma={sma}, std={std}"
