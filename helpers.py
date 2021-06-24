@@ -14,8 +14,12 @@ class helpers():
 
         oanda = tpqoa.tpqoa(cfg)
 
-        bid_price = oanda.get_history(instrument=instrument, start=start, end=end, granularity=granularity, price="B", localize=False).c.dropna().to_frame()
-        ask_price = oanda.get_history(instrument=instrument, start=start, end=end, granularity=granularity, price="A", localize=False).c.dropna().to_frame()
+        bid_price = oanda.get_history(instrument=instrument, start=start, end=end, granularity="M5", price="B", localize=False).c.dropna().to_frame()
+        ask_price = oanda.get_history(instrument=instrument, start=start, end=end, granularity="M5", price="A", localize=False).c.dropna().to_frame()
+
+        if granularity != "M5":
+            bid_price = bid_price.resample(granularity).last().dropna()
+            ask_price = ask_price.resample(granularity).last().dropna()
 
         spread = ask_price - bid_price
         data = bid_price
@@ -26,7 +30,7 @@ class helpers():
         data["mid_price"] = ask_price - spread
         data["spread"] = spread
 
-        data["hour"] = data.index.dt.hour
+        data["hour"] = data.index.hour
 
         data["price_change"] = data["mid_price"].diff().abs()
 

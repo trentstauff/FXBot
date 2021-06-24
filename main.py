@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     # api_info()
 
-    helpers.find_optimal_trading_time("oanda.cfg", "EUR_USD", "2019-07-21", "2020-10-20", granularity="M30")
+    helpers.find_optimal_trading_time("oanda.cfg", "EUR_USD", "2019-07-21", "2020-10-20", granularity="1H")
     # td = BollingerBandsLive("oanda.cfg", "EUR_USD", "30s", sma=20, deviation=1, units=100000, stop_loss=-5)
     # print("starting stream")
     # print(td._data)
