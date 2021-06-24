@@ -10,7 +10,10 @@ class BollingerBandsBacktest:
     """
     Class implementing vectorized back-testing of a Bollinger Bands trading strategy.
     """
-    def __init__(self, symbol, start, end, sma=20, deviation=2, granularity="D", trading_cost=0):
+
+    def __init__(
+        self, symbol, start, end, sma=20, deviation=2, granularity="D", trading_cost=0
+    ):
         """
         Initializes the BollingerBandsBacktest object.
 
@@ -40,7 +43,7 @@ class BollingerBandsBacktest:
         self._data = self.prepare_data()
 
     def __repr__(self):
-        return f"BollingerBandsBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, sma={self._sma}, deviation={self._deviation}, granularity={self._granularity}, trading_cost={self._tc}  )";
+        return f"BollingerBandsBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, sma={self._sma}, deviation={self._deviation}, granularity={self._granularity}, trading_cost={self._tc}  )"
 
     def acquire_data(self):
         """
@@ -50,12 +53,16 @@ class BollingerBandsBacktest:
             Returns a Pandas dataframe containing downloaded info.
             Includes: Date, Price, and Returns (%) (on the interval [start,end])
         """
-        oanda = tpqoa.tpqoa('../oanda.cfg')
+        oanda = tpqoa.tpqoa("../oanda.cfg")
 
         try:
-            df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
+            df = oanda.get_history(
+                self._symbol, self._start, self._end, self._granularity, "B"
+            )
         except:
-            raise ValueError("Please choose a supported instrument trading on OANDA, in the form XXX/YYY or XXX_YYY.")
+            raise ValueError(
+                "Please choose a supported instrument trading on OANDA, in the form XXX/YYY or XXX_YYY."
+            )
 
         # only care for the closing price
         df = df.c.to_frame()
@@ -117,14 +124,27 @@ class BollingerBandsBacktest:
             self._data["sma"] = self._data.price.rolling(self._sma).mean()
 
             # error with python... https://github.com/pandas-dev/pandas/issues/21786 .std() doesnt work
-            self._data["lower"] = self._data["sma"] - self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * self._deviation
-            self._data["upper"] = self._data["sma"] + self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * self._deviation
+            self._data["lower"] = (
+                self._data["sma"]
+                - self._data.price.rolling(self._sma).apply(lambda x: np.std(x))
+                * self._deviation
+            )
+            self._data["upper"] = (
+                self._data["sma"]
+                + self._data.price.rolling(self._sma).apply(lambda x: np.std(x))
+                * self._deviation
+            )
 
         if deviation is not None:
             self._deviation = deviation
-            self._data["lower"] = self._data["sma"] - (self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * deviation)
-            self._data["upper"] = self._data["sma"] + (self._data.price.rolling(self._sma).apply(lambda x: np.std(x)) * deviation)
-
+            self._data["lower"] = self._data["sma"] - (
+                self._data.price.rolling(self._sma).apply(lambda x: np.std(x))
+                * deviation
+            )
+            self._data["upper"] = self._data["sma"] + (
+                self._data.price.rolling(self._sma).apply(lambda x: np.std(x))
+                * deviation
+            )
 
     def test(self):
         """
@@ -147,7 +167,9 @@ class BollingerBandsBacktest:
         data["position"] = np.where(data["price"] > data["upper"], -1, data["position"])
 
         # if we have crossed the sma line, we want to close our current position (be neutral, position=0)
-        data["position"] = np.where(data["distance"] * data["distance"].shift(1) < 0, 0, data["position"])
+        data["position"] = np.where(
+            data["distance"] * data["distance"].shift(1) < 0, 0, data["position"]
+        )
 
         # clean up any NAN values/holiday vacancies
         data["position"] = data.position.ffill().fillna(0)
@@ -171,7 +193,7 @@ class BollingerBandsBacktest:
 
         return performance, out_performance
 
-    def optimize(self, sma_range=(1,252), dev_range=(1,3)):
+    def optimize(self, sma_range=(1, 252), dev_range=(1, 3)):
         """
         Optimizes the sma and deviation on the interval [start,end] which allows for the greatest return.
 
@@ -186,16 +208,19 @@ class BollingerBandsBacktest:
             print("The ranges must satisfy: (X,Y) -> X < Y")
             return
 
-        max_return = float('-inf')
+        max_return = float("-inf")
         best_sma = -1
         best_dev = -1
-        for sma in range(sma_range[0],sma_range[1]):
+        for sma in range(sma_range[0], sma_range[1]):
 
-            if sma == sma_range[1]/4: print("25%...")
-            if sma == sma_range[1]/2: print("50%...")
-            if sma == sma_range[1]/1.5: print("75%...")
+            if sma == sma_range[1] / 4:
+                print("25%...")
+            if sma == sma_range[1] / 2:
+                print("50%...")
+            if sma == sma_range[1] / 1.5:
+                print("75%...")
 
-            for dev in range(dev_range[0],dev_range[1]):
+            for dev in range(dev_range[0], dev_range[1]):
                 self.set_params(sma, dev)
                 current_return = self.test()[0]
 

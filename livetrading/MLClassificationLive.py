@@ -7,10 +7,29 @@ from livetrading.LiveTrader import LiveTrader
 
 
 class MLClassificationLive(LiveTrader):
-
-    def __init__(self, cfg, instrument, bar_length, lags, units, history_days=7, stop_datetime=None, stop_loss=None, stop_profit=None):
+    def __init__(
+        self,
+        cfg,
+        instrument,
+        bar_length,
+        lags,
+        units,
+        history_days=7,
+        stop_datetime=None,
+        stop_loss=None,
+        stop_profit=None,
+    ):
         # passes params to the parent class
-        super().__init__(cfg, instrument, bar_length, units, history_days, stop_datetime=stop_datetime, stop_loss=stop_loss, stop_profit=stop_profit)
+        super().__init__(
+            cfg,
+            instrument,
+            bar_length,
+            units,
+            history_days,
+            stop_datetime=stop_datetime,
+            stop_loss=stop_loss,
+            stop_profit=stop_profit,
+        )
         self._lags = lags
         self._model = None
         self.fit_model()
@@ -20,8 +39,18 @@ class MLClassificationLive(LiveTrader):
         now = now.replace(microsecond=0)
         past = now - timedelta(days=7)
 
-        mid_price = self.get_history(instrument=self._instrument, start=past, end=now,
-                                     granularity="S5", price="M", localize=False).c.dropna().to_frame()
+        mid_price = (
+            self.get_history(
+                instrument=self._instrument,
+                start=past,
+                end=now,
+                granularity="S5",
+                price="M",
+                localize=False,
+            )
+            .c.dropna()
+            .to_frame()
+        )
 
         data = mid_price
         data.rename(columns={"c": "mid_price"}, inplace=True)
@@ -33,7 +62,7 @@ class MLClassificationLive(LiveTrader):
 
         data["direction"] = np.sign(data["returns"])
 
-        pd.set_option('max_columns', None)
+        pd.set_option("max_columns", None)
 
         feature_columns = []
 
@@ -49,7 +78,6 @@ class MLClassificationLive(LiveTrader):
         self._model = model
 
         data["pred"] = self._model.predict(data[feature_columns])
-
 
     def define_strategy(self):
         data = self._raw_data.copy()

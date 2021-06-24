@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 
 
 class IterativeBase:
-
-    def __init__(self, cfg, symbol, start, end, amount, granularity="D", use_spread=True):
+    def __init__(
+        self, cfg, symbol, start, end, amount, granularity="D", use_spread=True
+    ):
         self._cfg = cfg
         self._symbol = symbol
         self._start = start
@@ -23,37 +24,41 @@ class IterativeBase:
         self.acquire_data()
 
     def acquire_data(self):
-       """
-       A general function to acquire data of an instrument from a source.
-       """
-       oanda = tpqoa.tpqoa(self._cfg)
+        """
+        A general function to acquire data of an instrument from a source.
+        """
+        oanda = tpqoa.tpqoa(self._cfg)
 
-       bid_df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
-       ask_df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "A")
+        bid_df = oanda.get_history(
+            self._symbol, self._start, self._end, self._granularity, "B"
+        )
+        ask_df = oanda.get_history(
+            self._symbol, self._start, self._end, self._granularity, "A"
+        )
 
-       bid_price = bid_df.c.to_frame()
-       ask_price = ask_df.c.to_frame()
+        bid_price = bid_df.c.to_frame()
+        ask_price = ask_df.c.to_frame()
 
-       spread = ask_price - bid_price
+        spread = ask_price - bid_price
 
-       # create the new dataframe with relevent info
-       df = bid_price
-       df.rename(columns={"c": "bid_price"}, inplace=True)
-       df["ask_price"] = ask_price
-       df["mid_price"] = ask_price - spread
-       df["spread"] = spread
+        # create the new dataframe with relevent info
+        df = bid_price
+        df.rename(columns={"c": "bid_price"}, inplace=True)
+        df["ask_price"] = ask_price
+        df["mid_price"] = ask_price - spread
+        df["spread"] = spread
 
-       df.dropna(inplace=True)
+        df.dropna(inplace=True)
 
-       df["returns"] = np.log(df.bid_price.div(df.bid_price.shift(1)))
+        df["returns"] = np.log(df.bid_price.div(df.bid_price.shift(1)))
 
-       self._data = df
+        self._data = df
 
     def bar_info(self, bar):
         date = str(self._data.index[bar].date())
         # round price to 5 as OANDA only gives 5 decimal places
-        price = round(self._data.bid_price.iloc[bar],5)
-        spread = round(self._data.spread.iloc[bar],5)
+        price = round(self._data.bid_price.iloc[bar], 5)
+        spread = round(self._data.spread.iloc[bar], 5)
 
         return date, price, spread
 
@@ -80,7 +85,7 @@ class IterativeBase:
             price += spread
 
         if amount is not None:
-            units = int(amount/price)
+            units = int(amount / price)
 
         if self._current_balance < units * price:
             print("Not enough balance.")
@@ -89,7 +94,9 @@ class IterativeBase:
         self._current_balance -= units * price
         self._units += units
         self._trades += 1
-        print(f"{date} | Bought {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}")
+        print(
+            f"{date} | Bought {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}"
+        )
 
     def sell(self, bar, units=None, amount=None):
         date, price, spread = self.bar_info(bar)
@@ -97,12 +104,14 @@ class IterativeBase:
         # since price is bid price, no need to adjust for spread
 
         if amount is not None:
-            units = int(amount/price)
+            units = int(amount / price)
 
         self._current_balance += units * price
         self._units -= units
         self._trades += 1
-        print(f"{date} | Sold {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}")
+        print(
+            f"{date} | Sold {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}"
+        )
 
     def close_position(self, bar):
         date, price, spread = self.bar_info(bar)
@@ -116,17 +125,17 @@ class IterativeBase:
             # closing short position by buying (ask price = bid_price + spread)
             self._current_balance -= abs(self._units * (price + spread))
 
-
         print(f"{date} | closed position of {self._units} units @ {price}")
         self._units = 0
         self._trades += 1
-        performance = ((self._current_balance - self._initial_balance)/self._initial_balance) * 100
+        performance = (
+            (self._current_balance - self._initial_balance) / self._initial_balance
+        ) * 100
         self.print_current_balance(bar)
         print(f"Performance %: {round(performance,2)}")
         print(f"Trades Executed: {self._trades}")
         print("=" * 50)
 
     def plot_data(self, columns="bid_price"):
-        self._data[columns].plot(figsize=(12,8), title=self._symbol)
+        self._data[columns].plot(figsize=(12, 8), title=self._symbol)
         plt.show()
-

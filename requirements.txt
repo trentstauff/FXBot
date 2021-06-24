@@ -1,0 +1,7 @@
+v20==3.0.25.0
+pytz==2019.3
+matplotlib==3.4.2
+numpy==1.21.0
+pandas==1.2.5
+scikit_learn==0.24.2
+yfinance==0.1.59

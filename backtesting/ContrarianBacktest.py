@@ -14,17 +14,18 @@ class ContrarianBacktest:
     Also note, these strategies change positions many times, which can lead to trading costs diminishing your
     profits, or magnifying your losses.
     """
+
     def __init__(self, symbol, start, end, window=1, granularity="D", trading_cost=0):
         """
-            Initializes the ContrarianBacktest object.
+        Initializes the ContrarianBacktest object.
 
-            Args:
-                symbol (string): A string holding the ticker symbol of instrument to be tested
-                start (string): The start date of the testing period
-                end (string): The end date of the testing period
-                window (int): Length of lags that drives the position.
-                granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
-                trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
+        Args:
+            symbol (string): A string holding the ticker symbol of instrument to be tested
+            start (string): The start date of the testing period
+            end (string): The end date of the testing period
+            window (int): Length of lags that drives the position.
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
         self._symbol = symbol
         self._start = start
@@ -38,7 +39,7 @@ class ContrarianBacktest:
         self._data = self.acquire_data()
 
     def __repr__(self):
-        return f"ContrarianBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, lags={self._window}, trading_cost={self._tc} )";
+        return f"ContrarianBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, lags={self._window}, trading_cost={self._tc} )"
 
     def acquire_data(self):
         """
@@ -48,9 +49,11 @@ class ContrarianBacktest:
             Returns a Pandas dataframe containing downloaded info.
         """
 
-        oanda = tpqoa.tpqoa('../oanda.cfg')
+        oanda = tpqoa.tpqoa("../oanda.cfg")
 
-        df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
+        df = oanda.get_history(
+            self._symbol, self._start, self._end, self._granularity, "B"
+        )
 
         # only care for the closing price
         df = df.c.to_frame()
@@ -132,7 +135,7 @@ class ContrarianBacktest:
 
         return performance, out_performance
 
-    def optimize(self, window_range=(1,252)):
+    def optimize(self, window_range=(1, 252)):
         """
         Optimizes the lags on the interval [start,end] which allows for the greatest return.
 
@@ -148,14 +151,17 @@ class ContrarianBacktest:
             print("The range must satisfy: (X,Y) -> X < Y")
             return
 
-        max_return = float('-inf')
+        max_return = float("-inf")
         best_window = 1
 
         for window in range(window_range[0], window_range[1]):
 
-            if window == (window_range[1]/4): print("25%...")
-            if window == (window_range[1]/2): print("50%...")
-            if window == (window_range[1]/1.5): print("75%...")
+            if window == (window_range[1] / 4):
+                print("25%...")
+            if window == (window_range[1] / 2):
+                print("50%...")
+            if window == (window_range[1] / 1.5):
+                print("75%...")
 
             current_return = self.test(window)[0]
 

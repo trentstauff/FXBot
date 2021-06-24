@@ -12,16 +12,17 @@ class MLClassificationBacktest:
     Class implementing the vectorized backtesting of machine learning strategies.
     In this case, Classification.
     """
+
     def __init__(self, symbol, start, end, granularity="D", trading_cost=0):
         """
-            Initializes the MLClassificationBacktest object.
+        Initializes the MLClassificationBacktest object.
 
-            Args:
-                symbol (string): A string holding the ticker symbol of instrument to be tested
-                start (string): The start date for the instrument
-                end (string): The end date for the instrument
-                granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
-                trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
+        Args:
+            symbol (string): A string holding the ticker symbol of instrument to be tested
+            start (string): The start date for the instrument
+            end (string): The end date for the instrument
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
         self._symbol = symbol
         self._start = start
@@ -36,28 +37,30 @@ class MLClassificationBacktest:
         self._data = self.acquire_data()
 
     def __repr__(self):
-        return f"MLClassificationBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )";
+        return f"MLClassificationBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )"
 
     def acquire_data(self):
-       """
-       A general function to acquire data of symbol from a source.
+        """
+        A general function to acquire data of symbol from a source.
 
-       Returns:
-           Returns a Pandas dataframe containing downloaded info.
-       """
-       oanda = tpqoa.tpqoa('../oanda.cfg')
+        Returns:
+            Returns a Pandas dataframe containing downloaded info.
+        """
+        oanda = tpqoa.tpqoa("../oanda.cfg")
 
-       df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
+        df = oanda.get_history(
+            self._symbol, self._start, self._end, self._granularity, "B"
+        )
 
-       # only care for the closing price
-       df = df.c.to_frame()
-       df.rename(columns={"c": "price"}, inplace=True)
+        # only care for the closing price
+        df = df.c.to_frame()
+        df.rename(columns={"c": "price"}, inplace=True)
 
-       df.dropna(inplace=True)
+        df.dropna(inplace=True)
 
-       df["returns"] = np.log(df.div(df.shift(1)))
+        df["returns"] = np.log(df.div(df.shift(1)))
 
-       return df
+        return df
 
     def get_data(self):
         """
@@ -108,7 +111,10 @@ class MLClassificationBacktest:
             end (string): The end date to fit model on
         """
         self.prepare_features(start, end)
-        self._model.fit(self._data_subset[self._feature_columns], np.sign(self._data_subset["returns"]))
+        self._model.fit(
+            self._data_subset[self._feature_columns],
+            np.sign(self._data_subset["returns"]),
+        )
 
     def prepare_features(self, start, end):
         """
@@ -121,7 +127,7 @@ class MLClassificationBacktest:
         self._data_subset = self.split_data(start, end)
         feature_columns = []
 
-        for lag in range(1, self._lags+1):
+        for lag in range(1, self._lags + 1):
             self._data_subset[f"lag{lag}"] = self._data_subset["returns"].shift(lag)
             feature_columns.append(f"lag{lag}")
 
@@ -143,7 +149,7 @@ class MLClassificationBacktest:
 
         # splits data
         split_index = int(len(df) * train_ratio)
-        split_date = df.index[split_index-1]
+        split_date = df.index[split_index - 1]
         backtest_start = df.index[0]
         test_end = df.index[-1]
 
@@ -154,24 +160,38 @@ class MLClassificationBacktest:
         self.prepare_features(split_date, test_end)
 
         # makes predictions on the test set
-        self._data_subset["prediction"] = self._model.predict(self._data_subset[self._feature_columns])
+        self._data_subset["prediction"] = self._model.predict(
+            self._data_subset[self._feature_columns]
+        )
 
         # strat returns
-        self._data_subset["strategy"] = self._data_subset["prediction"] * self._data_subset["returns"]
+        self._data_subset["strategy"] = (
+            self._data_subset["prediction"] * self._data_subset["returns"]
+        )
 
         # number of trades
-        self._data_subset["trades"] = self._data_subset["prediction"].diff().fillna(0).abs()
+        self._data_subset["trades"] = (
+            self._data_subset["prediction"].diff().fillna(0).abs()
+        )
 
         # adjust strat returns based on trading cost
-        self._data_subset["strategy"] = self._data_subset["strategy"] - (self._data_subset["trades"] * self._tc)
+        self._data_subset["strategy"] = self._data_subset["strategy"] - (
+            self._data_subset["trades"] * self._tc
+        )
 
-        self._data_subset["creturns"] = self._data_subset["returns"].cumsum().apply(np.exp)
-        self._data_subset["cstrategy"] = self._data_subset["strategy"].cumsum().apply(np.exp)
+        self._data_subset["creturns"] = (
+            self._data_subset["returns"].cumsum().apply(np.exp)
+        )
+        self._data_subset["cstrategy"] = (
+            self._data_subset["strategy"].cumsum().apply(np.exp)
+        )
 
         self._results = self._data_subset
 
         # stores the number of times we are correct or wrong with the prediction
-        self._hits = np.sign(self._data_subset.returns * self._data_subset.prediction).value_counts()
+        self._hits = np.sign(
+            self._data_subset.returns * self._data_subset.prediction
+        ).value_counts()
         # see how often we are correct
         self._hitratio = self._hits[1.0] / sum(self._hits)
 
