@@ -20,7 +20,7 @@ def yahoo():
     stocks = yf.download(tickers, start = "2010-01-01", end = "2019-02-06")
     close = stocks.loc[:, "Close"].copy()
     norm = close.div(close.iloc[0]).mul(100)
-    norm.plot(figsize= (15,8), fontsize = 13)
+    norm.plot(figsize = (15,8), fontsize = 13)
     plt.legend(fontsize = 13)
     plt.show()
 
@@ -85,11 +85,11 @@ if __name__ == '__main__':
     # obj.plot_results()
     # print(obj.get_hitratio())
 
-    obj = IterativeBacktest("oanda.cfg", "EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=False)
-    obj.test_contrarian(1)
-    stop = datetime(2021,6,21,21,4,6)
+    # obj = IterativeBacktest("oanda.cfg", "EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=False)
+    # obj.test_contrarian(1)
+    # stop = datetime(2021,6,21,21,4,6)
 
-    # api_info()
+    api_info()
 
     # helpers.find_optimal_trading_time("oanda.cfg", "EUR_USD", "2019-07-21", "2020-10-20", granularity="1H")
     # td = BollingerBandsLive("oanda.cfg", "EUR_USD", "1m", sma=20, deviation=1, units=100000, stop_loss=-5)
