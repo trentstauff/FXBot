@@ -50,7 +50,7 @@ class BollingerBandsBacktest:
             Returns a Pandas dataframe containing downloaded info.
             Includes: Date, Price, and Returns (%) (on the interval [start,end])
         """
-        oanda = tpqoa.tpqoa('oanda.cfg')
+        oanda = tpqoa.tpqoa('../oanda.cfg')
 
         try:
             df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")

@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from datetime import datetime, timedelta, time
 
-from LiveTrader import LiveTrader
+from livetrading.LiveTrader import LiveTrader
 
 
 class MLClassificationLive(LiveTrader):

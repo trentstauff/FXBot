@@ -1,6 +1,6 @@
 import numpy as np
 
-from LiveTrader import LiveTrader
+from livetrading.LiveTrader import LiveTrader
 
 
 class ContrarianLive(LiveTrader):

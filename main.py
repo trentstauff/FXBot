@@ -1,28 +1,15 @@
-import pandas as pd
 import tpqoa
 import yfinance as yf
 import matplotlib.pyplot as plt
-import numpy as np
-from datetime import datetime, timezone
-from helpers import helpers
+from datetime import datetime
 
-from MultipleRegressionModelPredictor import MultipleRegressionModelPredictor
-from BollingerBandsBacktest import BollingerBandsBacktest
-from MLClassificationBacktest import MLClassificationBacktest
-from IterativeBase import IterativeBase
-from IterativeBacktest import IterativeBacktest
-from LiveTrader import LiveTrader
-from ContrarianLive import ContrarianLive
-from MomentumLive import MomentumLive
-from SMALive import SMALive
-from BollingerBandsLive import BollingerBandsLive
-from MLClassificationLive import MLClassificationLive
+from livetrading.BollingerBandsLive import BollingerBandsLive
+
+from backtesting.IterativeBacktest import IterativeBacktest
 
 plt.style.use("seaborn")
-from FinancialInstrument import FinancialInstrument
-from SMABacktest import SMABacktest
-from ContrarianBacktest import ContrarianBacktest
-from MomentumBacktest import MomentumBacktest
+
+
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -98,14 +85,14 @@ if __name__ == '__main__':
     # obj.plot_results()
     # print(obj.get_hitratio())
 
-    # obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
-    # obj.test_sma(50,200)
+    obj = IterativeBacktest("EUR_USD", "2006-12-31", "2020-06-30", 100000, granularity="D", use_spread=True)
+    obj.test_sma(50,200)
     stop = datetime(2021,6,21,21,4,6)
 
     # api_info()
 
-    helpers.find_optimal_trading_time("oanda.cfg", "EUR_USD", "2019-07-21", "2020-10-20", granularity="1H")
-    # td = BollingerBandsLive("oanda.cfg", "EUR_USD", "30s", sma=20, deviation=1, units=100000, stop_loss=-5)
+    # helpers.find_optimal_trading_time("oanda.cfg", "EUR_USD", "2019-07-21", "2020-10-20", granularity="1H")
+    # td = BollingerBandsLive("oanda.cfg", "EUR_USD", "1m", sma=20, deviation=1, units=100000, stop_loss=-5)
     # print("starting stream")
     # print(td._data)
 

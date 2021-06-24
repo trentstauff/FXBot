@@ -1,4 +1,4 @@
-from IterativeBase import *
+from backtesting.IterativeBase import *
 
 class IterativeBacktest(IterativeBase):
 

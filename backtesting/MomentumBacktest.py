@@ -6,9 +6,9 @@ import tpqoa
 plt.style.use("seaborn")
 
 
-class ContrarianBacktest:
+class MomentumBacktest:
     """
-    Class implementing vectorized back-testing of a Contrarian Strategy.
+    Class implementing vectorized back-testing of a Momentum Strategy.
     This strategy should only be used alongside other strategies, on it's own it is very sensitive
     to the value of the moving lags set for the strategy.
     Also note, these strategies change positions many times, which can lead to trading costs diminishing your
@@ -16,15 +16,15 @@ class ContrarianBacktest:
     """
     def __init__(self, symbol, start, end, window=1, granularity="D", trading_cost=0):
         """
-            Initializes the ContrarianBacktest object.
+        Initializes the ContrarianBacktest object.
 
-            Args:
-                symbol (string): A string holding the ticker symbol of instrument to be tested
-                start (string): The start date of the testing period
-                end (string): The end date of the testing period
-                window (int): Length of lags that drives the position.
-                granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
-                trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
+        Args:
+            symbol (string): A string holding the ticker symbol of instrument to be tested
+            start (string): The start date of the testing period
+            end (string): The end date of the testing period
+            window (int): Length of lags that drives the position.
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective symbol
+            trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
         self._symbol = symbol
         self._start = start
@@ -38,7 +38,7 @@ class ContrarianBacktest:
         self._data = self.acquire_data()
 
     def __repr__(self):
-        return f"ContrarianBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, lags={self._window}, trading_cost={self._tc} )";
+        return f"MomentumBacktest( symbol={self._symbol}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )";
 
     def acquire_data(self):
         """
@@ -47,8 +47,7 @@ class ContrarianBacktest:
         Returns:
             Returns a Pandas dataframe containing downloaded info.
         """
-
-        oanda = tpqoa.tpqoa('oanda.cfg')
+        oanda = tpqoa.tpqoa('../oanda.cfg')
 
         df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
 
@@ -110,12 +109,11 @@ class ContrarianBacktest:
 
         data = self._data.copy()
 
-        data["position"] = -np.sign(data["returns"].rolling(window).mean())
+        data["position"] = np.sign(data["returns"].rolling(window).mean())
         data["strategy"] = data["position"].shift(1) * data["returns"]
 
         data.dropna(inplace=True)
 
-        # running total of amount of trades, each change of position is 2 trades
         data["trades"] = data.position.diff().fillna(0).abs()
 
         # correct strategy returns based on trading costs
@@ -177,7 +175,7 @@ class ContrarianBacktest:
         Also plots the results of the buy and hold strategy on the interval [start,end] to compare to the results.
         """
         if self._results is not None:
-            title = f"{self._symbol} | window {self._window}"
+            title = f"{self._symbol} | lags {self._window}"
             self._results[["creturns", "cstrategy"]].plot(title=title, figsize=(12, 8))
             plt.show()
         else:

@@ -25,7 +25,7 @@ class IterativeBase:
        """
        A general function to acquire data of an instrument from a source.
        """
-       oanda = tpqoa.tpqoa('oanda.cfg')
+       oanda = tpqoa.tpqoa('../oanda.cfg')
 
        bid_df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "B")
        ask_df = oanda.get_history(self._symbol, self._start, self._end, self._granularity, "A")
