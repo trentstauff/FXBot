@@ -75,21 +75,18 @@ if __name__ == "__main__":
 
             strategy = choice
 
-            # TODO: Validation
             print("Please enter the granularity for your session (IE \"1h\", \"1m\", \"5s\"): \n")
 
             granularity = input("")
 
-            print("Please enter the number of units you'd like to trade with: \n")
+            print("Please enter the number of units you'd like to trade with (integer, IE 200000 units): \n")
 
-            # TODO: Validation
             units = int(input(""))
 
-            print("Enter stop profit to halt trading at, IE 25$ (enter \"n\" if not applicable): \n")
+            print("Enter stop profit dollars to halt trading at (float, IE 25, 15.34, etc)  (enter \"n\" if not applicable): \n")
 
             # TODO: Enable stop datetime
 
-            # TODO: Validation that it is an int
             stop_profit = input("")
 
             if stop_profit == "n":
@@ -97,9 +94,8 @@ if __name__ == "__main__":
             else:
                 stop_profit = float(stop_profit)
 
-            print("Enter stop loss to halt trading at, IE -25$ (enter \"n\" if not applicable): \n")
+            print("Enter a negative stop loss to halt trading at (float, IE -25, -1.32, etc) (enter \"n\" if not applicable): \n")
 
-            # TODO: Validation that it is an int
             stop_loss = input("")
 
             if stop_loss == "n":
@@ -113,14 +109,12 @@ if __name__ == "__main__":
 
             if strategy == "sma":
 
-                print("Enter SMAS value: \n")
+                print("Enter SMAS value (integer, IE 9): \n")
 
-                # TODO: Validation that it is an int
                 smas = int(input(""))
 
-                print("Enter SMAL value: \n")
+                print("Enter SMAL value (integer, IE 20): \n")
 
-                # TODO: Validation that it is an int
                 smal = int(input(""))
 
                 while smal < smas:
@@ -132,14 +126,12 @@ if __name__ == "__main__":
 
             elif strategy == "bollinger_bands":
 
-                print("Enter SMA value: \n")
+                print("Enter SMA value (integer, IE 9): \n")
 
-                # TODO: Validation that it is an int
                 sma = int(input(""))
 
-                print("Enter deviation value: \n")
+                print("Enter deviation value (integer, IE 2): \n")
 
-                # TODO: Validation that it is an int
                 deviation = int(input(""))
 
                 trader = BollingerBandsLive(cfg, instrument, granularity, sma, deviation, units, stop_loss=stop_loss,
@@ -149,9 +141,8 @@ if __name__ == "__main__":
 
             elif strategy == "momentum":
 
-                print("Enter window value: \n")
+                print("Enter window value (integer, IE 3): \n")
 
-                # TODO: Validation that it is an int
                 window = int(input(""))
 
                 trader = MomentumLive(cfg, instrument, granularity, window, units, stop_loss=stop_loss,
@@ -161,9 +152,8 @@ if __name__ == "__main__":
 
             elif strategy == "contrarian":
 
-                print("Enter window value: \n")
+                print("Enter window value (integer, IE 3): \n")
 
-                # TODO: Validation that it is an int
                 window = int(input(""))
 
                 trader = ContrarianLive(cfg, instrument, granularity, window, units, stop_loss=stop_loss,
@@ -173,9 +163,8 @@ if __name__ == "__main__":
 
             elif strategy == "ml_classification":
 
-                print("Enter number of lags: \n")
+                print("Enter number of lags (integer, IE 6): \n")
 
-                # TODO: Validation that it is an int
                 lags = int(input(""))
 
                 trader = MLClassificationLive(cfg, instrument, granularity, lags, units, stop_loss=stop_loss,
