@@ -16,7 +16,7 @@ class SMALive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
-        
+
         # these should be in terms of minutes
         self._smas = smas
         self._smal = smal

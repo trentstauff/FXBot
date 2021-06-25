@@ -18,7 +18,7 @@ class LiveTrader(tpqoa.tpqoa):
         instrument,
         bar_length,
         units,
-        history_days=7,
+        history_days=1,
         stop_datetime=None,
         stop_loss=None,
         stop_profit=None,
@@ -34,7 +34,7 @@ class LiveTrader(tpqoa.tpqoa):
         elif datetime.today().weekday() >= 4 and datetime.today().hour >= 5:
             raise Exception("Sorry, markets are closed")
         else:
-            print("Markets are open.")
+            print("Markets are open, beginning trading session.")
 
         # passes the config file to tpqoa
         super().__init__(cfg)
@@ -73,7 +73,7 @@ class LiveTrader(tpqoa.tpqoa):
 
     # used to gather historical data used by some strategies
     def setup_history(self, days=1):
-
+        print("Setting up history...")
         if days != 0:
             # while loop to combat missing bar on boundary of historical and streamed data
             while True:
@@ -126,6 +126,7 @@ class LiveTrader(tpqoa.tpqoa):
                     pd.to_datetime(datetime.utcnow()).tz_localize("UTC")
                     - self._last_tick
                 ) < self._bar_length:
+                    print("History set up. Opening trading stream.")
                     break
 
     # called when new streamed data is successful

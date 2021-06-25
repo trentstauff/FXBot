@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from datetime import datetime, timedelta, time
 
 from livetrading.LiveTrader import LiveTrader
+import tpqoa
 
 
 class MLClassificationLive(LiveTrader):
@@ -20,8 +21,12 @@ class MLClassificationLive(LiveTrader):
         stop_profit=None,
     ):
 
+        # some of this info is needed by fit_model(), so we must set it in the child class
+        self._instrument = instrument
+        self._bar_length = pd.to_timedelta(bar_length)
         self._lags = lags
         self._model = None
+        self.fit_model()
 
         # passes params to the parent class
         super().__init__(
@@ -35,25 +40,15 @@ class MLClassificationLive(LiveTrader):
             stop_profit=stop_profit,
         )
 
-        self.fit_model()
-
     def fit_model(self):
+        print("Fitting model on past 7 days...")
         now = datetime.utcnow()
         now = now.replace(microsecond=0)
         past = now - timedelta(days=7)
 
-        mid_price = (
-            self.get_history(
-                instrument=self._instrument,
-                start=past,
-                end=now,
-                granularity="S5",
-                price="M",
-                localize=False,
-            )
-            .c.dropna()
-            .to_frame()
-        )
+        oanda = tpqoa.tpqoa("oanda.cfg")
+
+        mid_price = oanda.get_history(instrument=self._instrument, start=past, end=now, granularity="S5", price="M", localize=False).c.dropna().to_frame()
 
         data = mid_price
         data.rename(columns={"c": "mid_price"}, inplace=True)
@@ -81,6 +76,8 @@ class MLClassificationLive(LiveTrader):
         self._model = model
 
         data["pred"] = self._model.predict(data[feature_columns])
+
+        print("Model fitted.")
 
     def define_strategy(self):
         data = self._raw_data.copy()
