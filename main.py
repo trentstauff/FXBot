@@ -172,20 +172,116 @@ if __name__ == "__main__":
 
                 # TODO: Post trading analysis, maybe some graphs etc
 
-            break
-
         else:
 
             backtesting_strategies = ["sma", "bollinger_bands", "contrarian", "momentum", "ml_classification", "ml_regression"]
-            required_backtesting_params = {
-                "all": [["start", None], ["end", None], ["trading_cost", 0], ["granularity", None]],
-                "sma": [["smas", None], ["smal", None]],
-                "momentum": [["window", None]],
-                "contrarian": [["window", None]],
-                "bollinger_bands": [["sma", None], ["deviation", None]],
-                "ml_classification": [["lags", None]],
-                "ml_regression": [["backtest_range", None], ["forwardtest_range", None], ["lags", None]]
-            }
+
+            print("Please choose the strategy you would like to backtest: \n")
+
+            for strategy in backtesting_strategies:
+                print(strategy, end=", ")
+
+            choice = input("\n").lower()
+
+            while choice not in backtesting_strategies:
+                choice = input("Please choose a strategy listed above. \n").lower()
+
+            strategy = choice
+
+            print("Enter the start date for the backtest (string, in form of \"YYYY-MM-DD\"): \n")
+
+            start = input("")
+
+            print("Enter the end date for the backtest (string, in form of \"YYYY-MM-DD\"): \n")
+
+            end = input("")
+
+            while datetime.strptime(start, '%Y-%m-%d') > datetime.strptime(end, '%Y-%m-%d'):
+                end = input("End date must be after start date. \n")
+
+            print("Enter the trading cost to consider: (float, IE 0.0, 0.00007): \n")
+
+            trading_cost = float(input(""))
+
+            print("Please enter the granularity for your session (IE \"1h\", \"1m\", \"5s\"): \n")
+
+            granularity = input("")
+
+            if strategy == "sma":
+
+                print("Enter SMAS value (integer, IE 9): \n")
+
+                smas = int(input(""))
+
+                print("Enter SMAL value (integer, IE 20): \n")
+
+                smal = int(input(""))
+
+                while smal < smas:
+                    smal = int(input("SMAL must be larger or equal to SMAS: \n"))
+
+                trader = SMABacktest(instrument, start, end, smas, smal, granularity, trading_cost)
+
+                trader.test()
+                trader.optimize()
+                trader.plot_results()
+
+                # TODO: Post trading analysis, maybe some graphs etc
+
+            elif strategy == "bollinger_bands":
+
+                print("Enter SMA value (integer, IE 9): \n")
+
+                sma = int(input(""))
+
+                print("Enter deviation value (integer, IE 2): \n")
+
+                deviation = int(input(""))
+
+                trader = BollingerBandsBacktest(instrument, start, end, sma, deviation, granularity, trading_cost)
+
+                trader.test()
+                trader.optimize()
+                trader.plot_results()
+
+                # TODO: Post trading analysis, maybe some graphs etc
+
+            elif strategy == "momentum":
+
+                print("Enter window value (integer, IE 3): \n")
+
+                window = int(input(""))
+
+                trader = MomentumBacktest(instrument, start, end, window, granularity, trading_cost)
+
+                trader.test()
+                trader.optimize()
+                trader.plot_results()
+
+                # TODO: Post trading analysis, maybe some graphs etc
+
+            elif strategy == "contrarian":
+
+                print("Enter window value (integer, IE 3): \n")
+
+                window = int(input(""))
+
+                trader = ContrarianBacktest(instrument, start, end, window, granularity, trading_cost)
+
+                trader.test()
+                trader.optimize()
+                trader.plot_results()
+
+                # TODO: Post trading analysis, maybe some graphs etc
+
+            elif strategy == "ml_classification":
+
+                trader = MLClassificationBacktest(instrument, start, end, granularity, trading_cost)
+
+                trader.test()
+                trader.plot_results()
+
+                # TODO: Post trading analysis, maybe some graphs etc
 
 
         # obj = SMABacktest("EUR_USD", "2010-01-01", "2020-06-30", 30, 200, "D", 0)
