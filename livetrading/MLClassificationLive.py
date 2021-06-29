@@ -34,7 +34,6 @@ class MLClassificationLive(LiveTrader):
             stop_loss (float) <DEFAULT = None>: A stop loss that when profit goes below stops trading
             stop_profit (float) <DEFAULT = None>: A stop profit that when profit goes above stops trading
         """
-
         # some of this info is needed by fit_model(), so we must set it in the child class
         self._instrument = instrument
         self._bar_length = pd.to_timedelta(bar_length)

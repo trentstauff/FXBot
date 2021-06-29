@@ -6,6 +6,7 @@ from backtesting.Backtester import Backtester
 
 
 class MultipleRegressionModelPredictor(Backtester):
+
     """
     Predicts the direction of returns for each granularity time stamp, by fitting to a known time range
     and then predicting a future time range.
@@ -127,7 +128,6 @@ class MultipleRegressionModelPredictor(Backtester):
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
-
         print("Testing strategy...")
 
         data = self._forwardtest_df.copy()

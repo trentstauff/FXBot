@@ -4,10 +4,8 @@ from backtesting.Backtester import Backtester
 
 
 class ContrarianBacktest(Backtester):
-    """
-    Class implementing vectorized back-testing of a Contrarian Strategy.
-    """
 
+    """Class implementing vectorized back-testing of a Contrarian Strategy."""
     def __init__(self, instrument, start, end, window=1, granularity="D", trading_cost=0):
         """
         Initializes the ContrarianBacktest object.
@@ -20,7 +18,6 @@ class ContrarianBacktest(Backtester):
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-
         self._window = window
 
         # passes params to the parent class
@@ -45,7 +42,6 @@ class ContrarianBacktest(Backtester):
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
-
         if not mute:
             print(f"Testing strategy with window = {window} ...")
 
@@ -92,7 +88,6 @@ class ContrarianBacktest(Backtester):
             -> "max_return" is the optimized (maximum) return rate of the instrument on the interval [start,end]
             -> "best_window" is the optimized lags that enables a maximum return
         """
-
         if window_range[0] >= window_range[1]:
             print("The range must satisfy: (X,Y) -> X < Y")
             return

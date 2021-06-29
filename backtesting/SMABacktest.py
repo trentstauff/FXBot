@@ -4,10 +4,8 @@ from backtesting.Backtester import Backtester
 
 
 class SMABacktest(Backtester):
-    """
-    Class implementing vectorized back-testing of a SMA Cross trading strategy.
-    """
 
+    """Class implementing vectorized back-testing of a SMA Cross trading strategy."""
     def __init__(self, instrument, start, end, smas, smal, granularity="D", trading_cost=0):
         """
         Initializes the SMABacktest object.
@@ -21,7 +19,6 @@ class SMABacktest(Backtester):
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-
         self._smas = smas
         self._smal = smal
 

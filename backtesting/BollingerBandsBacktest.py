@@ -20,7 +20,6 @@ class BollingerBandsBacktest(Backtester):
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-
         self._sma = sma
         self._deviation = deviation
 
@@ -60,7 +59,6 @@ class BollingerBandsBacktest(Backtester):
             sma (int): The new sma
             deviation (int): The new deviation
         """
-
         if sma is not None:
             self._sma = sma
             self._data["sma"] = self._data.price.rolling(self._sma).mean()
@@ -98,7 +96,6 @@ class BollingerBandsBacktest(Backtester):
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
-
         if not mute:
             print(f"Testing strategy with sma = {self._sma}, deviation = {self._deviation} ...")
 
@@ -152,7 +149,6 @@ class BollingerBandsBacktest(Backtester):
             -> "best_sma" is the optimized global best_sma value that maximizes return
             -> "best_dev" is the optimized global best_dev value that maximizes return
         """
-
         ###############################################
         print("Warning: There is a current issue that will cause this optimization to take a long time.")
         ###############################################

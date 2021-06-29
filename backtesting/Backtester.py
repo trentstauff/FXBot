@@ -3,9 +3,7 @@ import matplotlib.pyplot as plt
 import tpqoa
 
 class Backtester:
-    """
-    Class implementing a vectorized back-testing framework.
-    """
+    """Class implementing a vectorized back-testing framework."""
 
     def __init__(self, instrument, start, end, granularity="D", trading_cost=0):
         """
@@ -18,7 +16,6 @@ class Backtester:
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-
         self._instrument = instrument
         self._start = start
         self._end = end
@@ -37,7 +34,6 @@ class Backtester:
         Returns:
             Returns a Pandas dataframe containing downloaded info.
         """
-
         print("Downloading historical data...")
 
         oanda = tpqoa.tpqoa("oanda.cfg")

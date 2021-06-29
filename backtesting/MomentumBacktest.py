@@ -2,7 +2,9 @@ import numpy as np
 
 from backtesting.Backtester import Backtester
 
+
 class MomentumBacktest(Backtester):
+
     """
     Class implementing vectorized back-testing of a Momentum Strategy.
     This strategy should only be used alongside other strategies, on it's own it is very sensitive
@@ -10,7 +12,6 @@ class MomentumBacktest(Backtester):
     Also note, these strategies change positions many times, which can lead to trading costs diminishing your
     profits, or magnifying your losses.
     """
-
     def __init__(self, instrument, start, end, window=1, granularity="D", trading_cost=0):
         """
         Initializes the ContrarianBacktest object.
@@ -23,7 +24,6 @@ class MomentumBacktest(Backtester):
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-
         self._window = window
 
         # passes params to the parent class
@@ -48,7 +48,6 @@ class MomentumBacktest(Backtester):
             -> "out_performance" is the performance when compared to a buy & hold on the same interval
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
-
         if not mute:
             print(f"Testing strategy with window = {self._window} ...")
 
@@ -95,7 +94,6 @@ class MomentumBacktest(Backtester):
             -> "max_return" is the optimized (maximum) return rate of the instrument on the interval [start,end]
             -> "best_window" is the optimized lags that enables a maximum return
         """
-
         if window_range[0] >= window_range[1]:
             print("The range must satisfy: (X,Y) -> X < Y")
             return

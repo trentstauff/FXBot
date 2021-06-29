@@ -5,11 +5,11 @@ from backtesting.Backtester import Backtester
 
 
 class MLClassificationBacktest(Backtester):
+
     """
     Class implementing the vectorized backtesting of machine learning strategies.
     In this case, Classification.
     """
-
     def __init__(self, instrument, start, end, granularity="D", trading_cost=0):
         """
         Initializes the MLClassificationBacktest object.
@@ -21,7 +21,6 @@ class MLClassificationBacktest(Backtester):
             granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
             trading_cost (float) <DEFAULT = 0.00>: A static trading cost considered when calculating returns
         """
-
         # low regularization
         self._model = LogisticRegression(C=1e6, max_iter=100000, multi_class="ovr")
 
@@ -99,7 +98,6 @@ class MLClassificationBacktest(Backtester):
             train_ratio (float [0, 1.0]) <DEFAULT = 0.7>: Splits the dataset into backtesting set (train_ratio) and test set (1-train_ratio)
             lags (int) <DEFAULT = 5>: The number of return lags serving as model features
         """
-
         print(f"Testing strategy with train_ratio = {train_ratio}, lags = {lags} ...")
 
         self._lags = lags
