@@ -2,6 +2,7 @@ from backtesting.IterativeBase import IterativeBase
 
 
 class IterativeBacktest(IterativeBase):
+
     """Class implementing strategy specific iterative testing functions"""
     def go_long(self, bar, units=None, amount=None):
         if self._position == -1:

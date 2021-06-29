@@ -35,7 +35,7 @@ class MLClassificationBacktest(Backtester):
         )
 
     def __repr__(self):
-        """Custom Representation"""
+        """Custom Representation."""
         return f"MLClassificationBacktest( instrument={self._instrument}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )"
 
     def get_hitratio(self):

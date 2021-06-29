@@ -65,7 +65,7 @@ class LiveTrader(tpqoa.tpqoa):
         self.stream_data(self._instrument)
 
     def __del__(self):
-        """Destructor used to ensure closing of position when object expires"""
+        """Destructor used to ensure closing of position when object expires."""
         # close out position
         self.close_position()
 

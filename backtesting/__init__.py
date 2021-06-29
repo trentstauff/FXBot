@@ -1,1 +1,1 @@
-"""Backtesting public package"""
+"""Backtesting public package."""

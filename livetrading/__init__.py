@@ -1,1 +1,1 @@
-"""Livetrading public package"""
+"""Livetrading public package."""

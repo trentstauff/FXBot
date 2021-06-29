@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class IterativeBase:
+
     """Class allowing iterative backtesting functionalities"""
     def __init__(
         self, cfg, symbol, start, end, amount, granularity="D", use_spread=True
@@ -25,7 +26,6 @@ class IterativeBase:
 
     def acquire_data(self):
         """A general function to acquire data of an instrument from a source."""
-
         oanda = tpqoa.tpqoa(self._cfg)
 
         bid_df = oanda.get_history(

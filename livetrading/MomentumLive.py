@@ -28,7 +28,6 @@ class MomentumLive(LiveTrader):
             stop_loss (float) <DEFAULT = None>: A stop loss that when profit goes below stops trading
             stop_profit (float) <DEFAULT = None>: A stop profit that when profit goes above stops trading
         """
-
         self._window = window
 
         # passes params to the parent class
