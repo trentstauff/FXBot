@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 
 from livetrading.LiveTrader import LiveTrader
 import tpqoa
@@ -20,6 +20,20 @@ class MLClassificationLive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
+        """
+        Initializes the MLClassificationLive object.
+
+        Args:
+            cfg (object): An object representing the OANDA connection
+            instrument (string): A string holding the ticker instrument of instrument to be tested
+            bar_length (string): Length of each candlestick for the respective instrument
+            lags (int): Amount of lagged returns to consider
+            units (int): Amount of units to take positions with
+            history_days (int) <DEFAULT = 7>: Amount of prior days to train the model on
+            stop_datetime (object) <DEFAULT = None>: A datetime object that when passed stops trading
+            stop_loss (float) <DEFAULT = None>: A stop loss that when profit goes below stops trading
+            stop_profit (float) <DEFAULT = None>: A stop profit that when profit goes above stops trading
+        """
 
         # some of this info is needed by fit_model(), so we must set it in the child class
         self._instrument = instrument

@@ -128,7 +128,7 @@ class MultipleRegressionModelPredictor(Backtester):
                 IE, if out_performance is greater than one, the strategy outperformed B&H.
         """
 
-        print(f"Testing strategy...")
+        print("Testing strategy...")
 
         data = self._forwardtest_df.copy()
 

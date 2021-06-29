@@ -16,6 +16,20 @@ class BollingerBandsLive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
+        """
+        Initializes the BollingerBandsLive object.
+
+        Args:
+            cfg (object): An object representing the OANDA connection
+            instrument (string): A string holding the ticker instrument of instrument to be tested
+            bar_length (string): Length of each candlestick for the respective instrument
+            sma (int): Length of simple moving average to consider
+            deviation (int): Standard deviation multiplier for upper and lower bands
+            units (int): Amount of units to take positions with
+            stop_datetime (object) <DEFAULT = None>: A datetime object that when passed stops trading
+            stop_loss (float) <DEFAULT = None>: A stop loss that when profit goes below stops trading
+            stop_profit (float) <DEFAULT = None>: A stop profit that when profit goes above stops trading
+        """
 
         self._sma = sma
         self._deviation = deviation

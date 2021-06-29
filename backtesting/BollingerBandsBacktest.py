@@ -3,9 +3,7 @@ from backtesting.Backtester import Backtester
 
 
 class BollingerBandsBacktest(Backtester):
-    """
-    Class implementing vectorized back-testing of a Bollinger Bands trading strategy.
-    """
+    """Class implementing vectorized back-testing of a Bollinger Bands trading strategy."""
     def __init__(
         self, instrument, start, end, sma=20, deviation=2, granularity="D", trading_cost=0
     ):
@@ -35,6 +33,7 @@ class BollingerBandsBacktest(Backtester):
         )
 
     def __repr__(self):
+        """Custom Representation"""
         return f"BollingerBandsBacktest( instrument={self._instrument}, start={self._start}, end={self._end}, sma={self._sma}, deviation={self._deviation}, granularity={self._granularity}, trading_cost={self._tc}  )"
 
     def prepare_data(self):

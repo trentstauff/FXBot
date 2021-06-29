@@ -64,8 +64,8 @@ class LiveTrader(tpqoa.tpqoa):
 
         self.stream_data(self._instrument)
 
-    # destructor
     def __del__(self):
+        """Destructor used to ensure closing of position when object expires"""
         # close out position
         self.close_position()
 
@@ -264,7 +264,6 @@ class LiveTrader(tpqoa.tpqoa):
         cum_profits = sum(self._profits)
         self._profit = cum_profits
 
-        print(f"")
         print(
             f"{time} : {position} --- {units} units, price of ${price}, profit of ${profit}, cum profit of ${cum_profits}"
         )
