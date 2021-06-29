@@ -84,7 +84,7 @@ class IterativeBase:
         print(f"{date} | Current NAV: ${round(nav,2)}")
 
     def print_current_position_value(self, bar):
-        date, price, spread = self.bar_info(bar)
+        date, price = self.bar_info(bar)
 
         curr_value = self._units * price
         print(f"{date} | Current Position Value: ${round(curr_value,2)}")
