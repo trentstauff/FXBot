@@ -12,7 +12,8 @@ class MultipleRegressionModelPredictor(Backtester):
     and then predicting a future time range.
     """
     def __init__(self, instrument, backtest_range, forwardtest_range, lags=3, granularity="D", trading_cost=0):
-        """Initializes the MultipleRegressionModelPredictor object.
+        """
+        Initializes the MultipleRegressionModelPredictor object.
 
         Args:
             instrument (string): A string holding the ticker instrument of instrument to be tested

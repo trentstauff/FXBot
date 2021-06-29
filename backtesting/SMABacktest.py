@@ -6,7 +6,8 @@ from backtesting.Backtester import Backtester
 class SMABacktest(Backtester):
     """Class implementing vectorized back-testing of a SMA Cross trading strategy."""
     def __init__(self, instrument, start, end, smas, smal, granularity="D", trading_cost=0):
-        """Initializes the SMABacktest object.
+        """
+        Initializes the SMABacktest object.
 
         Args:
             instrument (string): A string holding the ticker instrument of instrument to be tested

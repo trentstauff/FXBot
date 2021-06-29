@@ -8,7 +8,8 @@ class BollingerBandsBacktest(Backtester):
     def __init__(
         self, instrument, start, end, sma=20, deviation=2, granularity="D", trading_cost=0
     ):
-        """Initializes the BollingerBandsBacktest object.
+        """
+        Initializes the BollingerBandsBacktest object.
 
         Args:
             instrument (string): A string holding the ticker instrument of instrument to be tested
