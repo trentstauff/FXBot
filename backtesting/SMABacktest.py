@@ -4,7 +4,6 @@ from backtesting.Backtester import Backtester
 
 
 class SMABacktest(Backtester):
-
     """Class implementing vectorized back-testing of a SMA Cross trading strategy."""
     def __init__(self, instrument, start, end, smas, smal, granularity="D", trading_cost=0):
         """
@@ -32,6 +31,7 @@ class SMABacktest(Backtester):
         )
 
     def __repr__(self):
+        """Custom Representation."""
         return f"SMABacktest( instrument={self._instrument}, start={self._start}, end={self._end}, smas={self._smas}, smal={self._smal}, granularity={self._granularity}, trading_cost={self._tc}  )"
 
     def prepare_data(self):

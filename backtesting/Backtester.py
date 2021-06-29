@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tpqoa
 
+
 class Backtester:
     """Class implementing a vectorized back-testing framework."""
-
     def __init__(self, instrument, start, end, granularity="D", trading_cost=0):
         """
         Initializes the Backtester object.

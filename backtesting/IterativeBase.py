@@ -7,10 +7,23 @@ class IterativeBase:
 
     """Class allowing iterative backtesting functionalities"""
     def __init__(
-        self, cfg, symbol, start, end, amount, granularity="D", use_spread=True
+        self, cfg, instrument, start, end, amount, granularity="D", use_spread=True
     ):
+        """
+        Initializes the MomentumLive object.
+
+        Args:
+            cfg (object): An object representing the OANDA connection
+            instrument (string): A string holding the ticker instrument of instrument to be tested
+            start (string): Length of each candlestick for the respective instrument
+            start (string): The start date of the testing period
+            end (string): The end date of the testing period
+            amount (int): Amount of units to take positions with
+            granularity (string) <DEFAULT = "D">: Length of each candlestick for the respective instrument
+            use_spread (bool) <DEFAULT = True>: An option to consider trading costs or to neglect them
+        """
         self._cfg = cfg
-        self._symbol = symbol
+        self._instrument = instrument
         self._start = start
         self._end = end
         self._initial_balance = amount
@@ -29,10 +42,10 @@ class IterativeBase:
         oanda = tpqoa.tpqoa(self._cfg)
 
         bid_df = oanda.get_history(
-            self._symbol, self._start, self._end, self._granularity, "B"
+            self._instrument, self._start, self._end, self._granularity, "B"
         )
         ask_df = oanda.get_history(
-            self._symbol, self._start, self._end, self._granularity, "A"
+            self._instrument, self._start, self._end, self._granularity, "A"
         )
 
         bid_price = bid_df.c.to_frame()
@@ -62,7 +75,7 @@ class IterativeBase:
         return date, price, spread
 
     def print_current_balance(self, bar):
-        date, price, spread = self.bar_info(bar)
+        date, spread = self.bar_info(bar)
         print(f"{date} | Current Balance: ${round(self._current_balance,2)}")
 
     def print_current_nav(self, bar):
@@ -94,7 +107,7 @@ class IterativeBase:
         self._units += units
         self._trades += 1
         print(
-            f"{date} | Bought {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}"
+            f"{date} | Bought {units} units of {self._instrument} @ ${round(price,2)}/unit, total=${round(units*price,2)}"
         )
 
     def sell(self, bar, units=None, amount=None):
@@ -109,13 +122,13 @@ class IterativeBase:
         self._units -= units
         self._trades += 1
         print(
-            f"{date} | Sold {units} units of {self._symbol} @ ${round(price,2)}/unit, total=${round(units*price,2)}"
+            f"{date} | Sold {units} units of {self._instrument} @ ${round(price,2)}/unit, total=${round(units*price,2)}"
         )
 
     def close_position(self, bar):
         date, price, spread = self.bar_info(bar)
         print("=" * 50)
-        print(f"Closing Position ({self._symbol}, {date})")
+        print(f"Closing Position ({self._instrument}, {date})")
 
         if self._units > 0:
             # closing long position by selling (bid price)
@@ -136,5 +149,5 @@ class IterativeBase:
         print("=" * 50)
 
     def plot_data(self, columns="bid_price"):
-        self._data[columns].plot(figsize=(12, 8), title=self._symbol)
+        self._data[columns].plot(figsize=(12, 8), title=self._instrument)
         plt.show()

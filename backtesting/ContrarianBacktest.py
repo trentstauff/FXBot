@@ -4,7 +4,6 @@ from backtesting.Backtester import Backtester
 
 
 class ContrarianBacktest(Backtester):
-
     """Class implementing vectorized back-testing of a Contrarian Strategy."""
     def __init__(self, instrument, start, end, window=1, granularity="D", trading_cost=0):
         """
@@ -30,6 +29,7 @@ class ContrarianBacktest(Backtester):
         )
 
     def __repr__(self):
+        """Custom Representation."""
         return f"ContrarianBacktest( symbol={self._instrument}, start={self._start}, end={self._end}, granularity={self._granularity}, lags={self._window}, trading_cost={self._tc} )"
 
     def test(self, window=1, mute=False):

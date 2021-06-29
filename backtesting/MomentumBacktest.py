@@ -36,6 +36,7 @@ class MomentumBacktest(Backtester):
         )
 
     def __repr__(self):
+        """Custom Representation."""
         return f"MomentumBacktest( instrument={self._instrument}, start={self._start}, end={self._end}, granularity={self._granularity}, trading_cost={self._tc} )"
 
     def test(self, window=1, mute=False):
