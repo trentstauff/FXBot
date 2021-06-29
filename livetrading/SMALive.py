@@ -17,7 +17,7 @@ class SMALive(LiveTrader):
         stop_profit=None,
     ):
         """
-        Initializes the MomentumLive object.
+        Initializes the SMALive object.
 
         Args:
             cfg (object): An object representing the OANDA connection

@@ -21,7 +21,19 @@ class LiveTrader(tpqoa.tpqoa):
         stop_loss=None,
         stop_profit=None,
     ):
+        """
+        Initializes the LiveTrader object.
 
+        Args:
+            cfg (object): An object representing the OANDA connection
+            instrument (string): A string holding the ticker instrument of instrument to be tested
+            bar_length (string): Length of each candlestick for the respective instrument
+            units (int): Amount of units to take positions with
+            history_days (int): Amount of prior days history to download
+            stop_datetime (object) <DEFAULT = None>: A datetime object that when passed stops trading
+            stop_loss (float) <DEFAULT = None>: A stop loss that when profit goes below stops trading
+            stop_profit (float) <DEFAULT = None>: A stop profit that when profit goes above stops trading
+        """
         # TODO: More rigorous handling of markets being closed (this is EST dependent, must ensure that is what the datetime is giving)
         if datetime.today().weekday() >= 6 and datetime.today().hour >= 17:
             print("Markets are open.")

@@ -9,7 +9,8 @@ class IterativeBase:
     def __init__(
         self, cfg, instrument, start, end, amount, granularity="D", use_spread=True
     ):
-        """Initializes the MomentumLive object.
+        """
+        Initializes the IterativeBase object.
 
         Args:
             cfg (object): An object representing the OANDA connection
@@ -78,7 +79,7 @@ class IterativeBase:
         print(f"{date} | Current Balance: ${round(self._current_balance,2)}")
 
     def print_current_nav(self, bar):
-        date, price, spread = self.bar_info(bar)
+        date, price = self.bar_info(bar)
         nav = self._current_balance + (self._units * price)
         print(f"{date} | Current NAV: ${round(nav,2)}")
 
