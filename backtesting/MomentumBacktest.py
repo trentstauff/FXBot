@@ -13,8 +13,7 @@ class MomentumBacktest(Backtester):
     profits, or magnifying your losses.
     """
     def __init__(self, instrument, start, end, window=1, granularity="D", trading_cost=0):
-        """
-        Initializes the ContrarianBacktest object.
+        """Initializes the ContrarianBacktest object.
 
         Args:
             instrument (string): A string holding the ticker instrument of instrument to be tested

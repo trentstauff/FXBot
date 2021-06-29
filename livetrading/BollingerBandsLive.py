@@ -16,8 +16,7 @@ class BollingerBandsLive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
-        """
-        Initializes the BollingerBandsLive object.
+        """Initializes the BollingerBandsLive object.
 
         Args:
             cfg (object): An object representing the OANDA connection

@@ -15,8 +15,7 @@ class MomentumLive(LiveTrader):
         stop_loss=None,
         stop_profit=None,
     ):
-        """
-        Initializes the MomentumLive object.
+        """Initializes the MomentumLive object.
 
         Args:
             cfg (object): An object representing the OANDA connection
