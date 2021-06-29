@@ -11,8 +11,3 @@ Event-Driven Backtesting:
 Live Strategies:
 
 Recommendations:
-
--
-
-
-
