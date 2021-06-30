@@ -21,4 +21,6 @@ Recommendations:
 
 After cloning the repo, run `pip install -r requirements.txt` to get the required packages.
 
-After that, open a command prompt and you can start up the program by typing `python main.py` while in it's directory.
+### Running the application
+
+After installing the requirements, open a command prompt and you can start up the program by typing `python main.py` while in it's directory.
