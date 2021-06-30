@@ -15,7 +15,7 @@ Live Strategies:
 
 Recommendations:
 
-# Getting Started
+## Getting Started
 
 ### Requirements
 
