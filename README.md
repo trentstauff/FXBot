@@ -5,7 +5,7 @@
 
 ![image](https://user-images.githubusercontent.com/53923200/128397947-04711cb7-0b16-4ed6-8c84-3fdacdc2fadc.png)
 
-**FXBot** is just as you guessed- a **Forex trading bot!** It's been developed in Python, enabled by the OANDA V20 API.
+**FXBot** is just what you guessed- a **Forex trading bot!** It's been developed in Python, enabled by the OANDA V20 API.
 
 This trading bot allows users to **backtest** and **analyze** their favourite strategies executed on the most popular currency pairs, while also enabling users to dive straight into trading these forex pairs in **real-time, through algorithmic live trading.**
 
