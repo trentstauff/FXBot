@@ -7,9 +7,9 @@
 
 **FXBot** is just as you guessed- a **Forex trading bot!** It's been developed in Python, enabled by the OANDA V20 API.
 
-This trading bot allows users to **backtest** and **analyze** their favorite strategies executed on the most popular currency pairs, while also enabling the users to dive right into trading these forex pairs in **real time, through algorithmic live trading.**
+This trading bot allows users to **backtest** and **analyze** their favorite strategies executed on the most popular currency pairs, while also enabling users to dive straight into trading these forex pairs in **real time, through algorithmic live trading.**
 
-As we all know, algorithmic trading is the **future of finance**. When looking at the top trading firms in the world, all of them are making a shift towards automated trading, investing heavily in the space. The ones who don't automate, are at risk of falling behind of their competitors!
+As we all know, algorithmic trading is the **future of finance**. When looking at the top trading firms in the world, all of them are making a shift towards automated trading, and are investing heavily in the space. The ones who don't automate, are at risk of falling behind of their competitors!
 
 That's what inspired me to make this bot, and to expose to the public how really anyone this day and age can jump head first into the algorithmic trading world.
 
@@ -26,23 +26,79 @@ Trading Forex involves a risk of loss. Please consider carefully if such trading
 
 If you are to trade using this bot, understand that algorithmic trading involves a high level of risk and is not appropriate for everyone. No guarentee is being made that by using this bot, the algorithmic trading strategies will result in profitable trading or be free of risk of loss. There is a possibility that you could lose some or all of your investment.
 
-## How It Works
+## What FXBot Can Do
 
-This bot is open to the public
+When you first run FXBot, you will be prompted to enter the following:
 
-## Backtesting
+1) The currency pair you would like to analyze/trade
+2) Whether to conduct backtesting or live trading on said currency pair
 
-Current Strategies:
+![image](https://user-images.githubusercontent.com/53923200/128404575-c66b07cc-fc77-4d28-8d35-58d7ae2d120c.png)
 
-Vectorized Backtesting:
+### Backtesting
 
-Event-Driven Backtesting:
+Backtesting is a method for seeing how well a strategy would have performed on historical data. This powerful technique can gather a lot of important information about the strategy- such as when is the best time for the strategy to operate, which currency pairs it should execute on, and much more. 
+If the strategy performs well during backtesting, then individuals can look into putting the strategy into a production environment and try to beat the market.
 
-Live Strategies:
+FXBot enables users to backtest their strategies, alongside giving flexibility and customization surrounding the parameters passed to the backtester.
 
-Recommendations:
+When running the backtesting section of the bot, users will be prompted to specify the following:
 
-## Getting Started
+1) The strategy to backtest
+2) The date range the backtest should occur over
+3) Whether the strategy should consider trading costs
+4) The granularity for the backtest session (IE how often should the bot analyze the data and consider positions)?
+5) Values unique to the strategy (if these values are with respect to time, such as moving averages, the time unit is the same as your specifed granularity)
+
+![image](https://user-images.githubusercontent.com/53923200/128403680-72bfc834-aa76-4f1f-a1a0-295f24c9ebcf.png)
+
+After entering this, the bot will go ahead and conduct the backtesting.
+
+Not only will it test the user's specified parameter choices onto the currency pair, but the bot will also find the most **optimal** parameter values for that time period that allows for the highest ROI. This optimization gives critical information that can be further analyzed by the user to find the best values for their trading situation.
+
+Finally, the bot will plot the results so that the user can tangibily see the performance of the strategy.
+
+### Live Trading
+
+Once you believe you have found a good strategy and have optimized it's unique parameters, you can jump into live trading.
+
+Live trading is exactly how it sounds, it utilizes algorithmic, event-driven trading that allows the user to execute the strategy on data as it happens in real time. 
+This is where you can realize the full potential of your strategy and see how it performs against the market.
+
+When running the live trading section of the bot, users will be prompted to specify the following:
+
+1) The strategy to backtest
+2) The date range the backtest should occur over
+3) The granularity for the trading session (IE how often should the bot analyze the data and consider positions)?
+4) The number of units to trade with (IE the size you want your positions to be)
+5) OPTIONAL: A "stop profit" to halt trading at if you reach
+6) OPTIONAL: A "stop loss" to halt trading at if you go below
+7) Values unique to the strategy (if these values are with respect to time, such as moving averages, the time unit is the same as your specifed granularity)
+
+![image](https://user-images.githubusercontent.com/53923200/128405363-900d8ddb-6b43-4dae-bfdf-7fdfbe1b4007.png)
+
+Once the bot is set up and ready to trade, the trading stream will open. For the duration of the session, the console will continously output each "tick" of data that is being streamed back to the bot, which contains the time of the tick, the bid price, and the ask price.
+
+Every "granularity", the bot will analyze the current market and determine if it should open, close, modify, or hold a position, which is based on the underlying strategy.
+
+![image](https://user-images.githubusercontent.com/53923200/128405765-15760e5f-1807-42a5-997a-06d975a5ea1f.png)
+
+If any of the stop thresholds have been crossed, or if the user terminates the session, the bot will automatically exit all of it's current positions, and the console will default back to the start, where the user can start over.
+
+![image](https://user-images.githubusercontent.com/53923200/128405987-c60bbea3-7c1c-4cae-8b5f-c5e0dab8fea4.png)
+
+
+## Current Strategies
+
+- SMA https://www.google.com/search?q=sma+strategy&oq=SMA+strategy&aqs=chrome.0.0i512j0i67j0i512l2j0i22i30l6.1680j0j7&sourceid=chrome&ie=UTF-8
+- Bollinger Bands https://www.investopedia.com/trading/using-bollinger-bands-to-gauge-trends/
+- Contrarian https://www.investopedia.com/terms/c/contrarian.asp
+- Momentum https://www.investopedia.com/terms/m/momentum_investing.asp
+- Machine Learning Classification Analysis
+- Machine Learning Regression Analysis
+- And much more to come!
+
+## How to Setup FXBot
 
 ### Requirements
 
