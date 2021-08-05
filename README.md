@@ -22,7 +22,7 @@ Through OANDA, you do NOT need to trade real money, and the same is true with re
 If you do decide to trade real money, this disclaimer is for you.
 
 ### Understand The Risk
-Trading Forex involves a risk of loss. Please consider carefully if such trading is appropriate for you. Past performance is not indicative of future results. FXBot has been created soley for educational purposes only and do not constitute investment recommendations or advice, and I strongly recommend that you **use this bot as a learning tool.**
+Trading Forex involves a risk of loss. Please consider carefully if such trading is appropriate for you. Past performance is not indicative of future results. FXBot has been created soley for educational purposes only and it's calculations does not constitute investment recommendations or advice, and it is strongly recommended that you **use this bot as a learning tool.**
 
 If you are to trade using this bot, understand that algorithmic trading involves a high level of risk and is not appropriate for everyone. No guarentee is being made that by using this bot, the algorithmic trading strategies will result in profitable trading or be free of risk of loss. There is a possibility that you could lose some or all of your investment.
 
