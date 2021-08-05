@@ -3,7 +3,7 @@
 
 # FXBot
 
-**![image](https://user-images.githubusercontent.com/53923200/128397411-30e91bdb-641c-46de-90aa-84d4d4e0b668.png)**
+![image](https://user-images.githubusercontent.com/53923200/128397947-04711cb7-0b16-4ed6-8c84-3fdacdc2fadc.png)
 
 **FXBot** is just as you guessed- a **Forex trading bot!** It's been developed in Python, enabled by the OANDA V20 API.
 
