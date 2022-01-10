@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
             strategy = choice
 
-            print("Please enter the granularity for your session (IE \"1h\", \"1m\", \"5s\"): \n")
+            print("Please enter the granularity for your session (See list in README, IE \"S30\", \"M1\", \"H1\"): \n")
 
             granularity = input("")
 
@@ -194,7 +194,7 @@ if __name__ == "__main__":
 
             trading_cost = float(input(""))
 
-            print("Please enter the granularity for your session (IE \"1h\", \"1m\", \"5s\"): \n")
+            print("Please enter the granularity for your session (See list in README, IE \"S30\", \"M1\", \"H1\"): \n")
 
             granularity = input("")
 
