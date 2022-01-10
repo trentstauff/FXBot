@@ -50,6 +50,10 @@ When running the backtesting section of the bot, users will be prompted to speci
 4) The granularity for the backtest session (IE how often should the bot analyze the data and consider positions)?
 5) Values unique to the strategy (if these values are with respect to time, such as moving averages, the time unit is the same as your specified granularity)
 
+Note: Here are the accepted granularity values you can choose from!
+![image](https://user-images.githubusercontent.com/53923200/148832211-edd63f5a-8ca5-4d58-8325-661e0e71ebc2.png)
+
+
 ![image](https://user-images.githubusercontent.com/53923200/128403680-72bfc834-aa76-4f1f-a1a0-295f24c9ebcf.png)
 
 After entering this, the bot will go ahead and conduct the backtesting.
