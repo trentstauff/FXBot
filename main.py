@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
             strategy = choice
 
-            print("Please enter the granularity for your session (See list in README, IE \"S30\", \"M1\", \"H1\"): \n")
+            print("Please enter the granularity for your session (NOT from list in README, try \"1hr\", \"1m\", \"30s\" (less strict): \n")
 
             granularity = input("")
 
