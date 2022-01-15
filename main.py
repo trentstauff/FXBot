@@ -16,6 +16,9 @@ from backtesting.MLClassificationBacktest import MLClassificationBacktest
 
 if __name__ == "__main__":
 
+    for x in range(0,5):
+        print("GET READY TO PUSH SOME P!!")
+
     while True:
 
         # step 1 ensure they have this
