@@ -2,7 +2,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs%20-welcome-brightgreen.svg)](#contributing)
 
 # Important: 
-### This repo relies on submodules. To clone it properly, please do:
+### This repo relies on submodules. To clone it properly, run:
 
 ```
 git clone --recurse-submodules -j8 https://github.com/trentstauff/FXBot
