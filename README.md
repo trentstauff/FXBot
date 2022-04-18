@@ -110,6 +110,8 @@ If any of the stop thresholds have been crossed, or if the user terminates the s
 
 ## How to Setup FXBot
 
+You can start off by cloning the repo by running `git clone --recurse-submodules -j8 https://github.com/trentstauff/FXBot`
+
 ### Requirements
 
 First, you need to have at least a practice account with Oanda (https://oanda.com/). Once logged in, you must create an API token and copy your account number. 
