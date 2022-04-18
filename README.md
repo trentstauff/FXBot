@@ -1,6 +1,12 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4d81d46fe74d40ba8d405550e644a812)](https://www.codacy.com/gh/trentstauff/FXBot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=trentstauff/FXBot&amp;utm_campaign=Badge_Grade)
 [![PRs Welcome](https://img.shields.io/badge/PRs%20-welcome-brightgreen.svg)](#contributing)
 
+# Important: 
+### This repo relies on submodules. To clone it properly, please do:
+
+```
+git clone --recurse-submodules -j8 https://github.com/trentstauff/FXBot
+```
 # FXBot
 
 ![image](https://user-images.githubusercontent.com/53923200/128397947-04711cb7-0b16-4ed6-8c84-3fdacdc2fadc.png)
