@@ -28,14 +28,14 @@ if __name__ == "__main__":
 
         print("Enter an instrument to trade: \n")
         choices = []
-        for instrument in oanda.get_instruments():
+        for i, instrument in enumerate(oanda.get_instruments()):
             temp = instrument[1]
             choices.append(temp)
-            print(temp, end=", ")
-
+            print(i,temp, end="\n")
         print("")
 
-        choice = input("\n")
+        choice = choices[int(input("Your Selection:"))]
+        print("Youe Select this instrument {inst}".format(inst = choice))
 
         while choice not in choices:
             choice = input("Please choose an instrument from the list above: ")
