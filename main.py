@@ -26,21 +26,36 @@ if __name__ == "__main__":
 
         # step 2 decide instrument
 
-        print("Enter an instrument to trade: \n")
+        print("Enter an instrument to trade (index or pair name): \n")
         choices = []
-        for instrument in oanda.get_instruments():
+        
+        for index, instrument in enumerate(oanda.get_instruments()):
             temp = instrument[1]
             choices.append(temp)
-            print(temp, end=", ")
+            print(f"({index}: {temp})", end=", ")
 
         print("")
 
         choice = input("\n")
+        
+        while True:
+            if choice not in choices:
+                
+                try:
+                    val = int(choice)
+                    if val < len(choices) and val >= 0:
+                        choice = choices[val]
+                        break
+                except:
+                    pass
 
-        while choice not in choices:
-            choice = input("Please choose an instrument from the list above: ")
+                choice = input("Please choose an instrument from the list above: ")
+            else:
+                break
 
         instrument = choice
+        
+        print(f"Instrument: {instrument}") 
 
         # step 3 decide if live or backtesting
 
