@@ -157,5 +157,4 @@ After cloning the repo, run `pip install -r requirements.txt` to get the require
 After installing the requirements, open a command prompt and you can start up the program by typing `python main.py` (python3 on Linux, if applicable) while in its directory.
 
 ### Thats all! I hope that this bot helps you to see how awesome algorithmic trading can be. 
-### If you need any help setting things up, feel free to email me at tstauffe@uwaterloo.ca
 ### Have a good one!
