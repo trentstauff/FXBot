@@ -1,0 +1,29 @@
+import MetaTrader5 as mt5
+import pandas as pd
+import time
+
+# Initialize connection to MetaTrader 5
+if not mt5.initialize():
+    print("initialize() failed")
+    mt5.shutdown()
+
+# Login to your account
+account = 'YOUR_ACCOUNT_NUMBER'
+password = 'YOUR_ACCOUNT_PASSWORD'
+server = 'YOUR_BROKER_SERVER'
+
+authorized = mt5.login(account, password, server)
+if not authorized:
+    print(f"Failed to connect at account #{account}, error code: {mt5.last_error()}")
+    mt5.shutdown()
+
+# Define a simple moving average strategy
+def simple_moving_average(symbol, timeframe, short_window, long_window):
+    rates = mt5.copy_rates_from_pos(symbol, timeframe, 0, long_window)
+    rates_frame = pd.DataFrame(rates)
+    rates_frame['time'] = pd.to_datetime(rates_frame['time'], unit='s')
+    
+    rates_frame['short_ma'] = rates_frame['close'].rolling(window=short_window).mean()
+    rates_frame['long_ma'] = rates_frame['close'].rolling(window=long_window).mean()
+    
+    return rates_frame
